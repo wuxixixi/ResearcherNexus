@@ -9,7 +9,7 @@
 
 **DeerFlow**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）是一个社区驱动的深度研究框架，它建立在开源社区的杰出工作基础之上。我们的目标是将语言模型与专业工具（如网络搜索、爬虫和Python代码执行）相结合，同时回馈使这一切成为可能的社区。
 
-请访问[ResearcherNexus的官方网站](https://deerflow.tech/)了解更多详情。
+请访问[ResearcherNexus的官方网站](https://www.sass.org.cn/)了解更多详情。
 
 ## 演示
 
@@ -17,18 +17,18 @@
 
 https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
 
-在此演示中，我们展示了如何使用DeerFlow：
+在此演示中，我们展示了如何使用ResearchNexus：
 - 无缝集成MCP服务
 - 进行深度研究过程并生成包含图像的综合报告
 - 基于生成的报告创建播客音频
 
 ### 回放示例
 
-- [埃菲尔铁塔与最高建筑相比有多高？](https://deerflow.tech/chat?replay=eiffel-tower-vs-tallest-building)
-- [GitHub上最热门的仓库有哪些？](https://deerflow.tech/chat?replay=github-top-trending-repo)
-- [撰写关于南京传统美食的文章](https://deerflow.tech/chat?replay=nanjing-traditional-dishes)
-- [如何装饰租赁公寓？](https://deerflow.tech/chat?replay=rental-apartment-decoration)
-- [访问我们的官方网站探索更多回放示例。](https://deerflow.tech/#case-studies)
+- [埃菲尔铁塔与最高建筑相比有多高？](https://ResearcherNexus.tech/chat?replay=eiffel-tower-vs-tallest-building)
+- [GitHub上最热门的仓库有哪些？](https://ResearcherNexus.tech/chat?replay=github-top-trending-repo)
+- [撰写关于南京传统美食的文章](https://ResearcherNexus.tech/chat?replay=nanjing-traditional-dishes)
+- [如何装饰租赁公寓？](https://ResearcherNexus.tech/chat?replay=rental-apartment-decoration)
+- [访问我们的官方网站探索更多回放示例。](https://ResearcherNexus.tech/#case-studies)
 
 ---
 
@@ -49,7 +49,7 @@ https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
 
 ## 快速开始
 
-DeerFlow使用Python开发，并配有用Node.js编写的Web UI。为确保顺利的设置过程，我们推荐使用以下工具：
+ResearcherNexus使用Python开发，并配有用Node.js编写的Web UI。为确保顺利的设置过程，我们推荐使用以下工具：
 
 ### 推荐工具
 - **[`uv`](https://docs.astral.sh/uv/getting-started/installation/):**
