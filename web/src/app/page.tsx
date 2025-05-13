@@ -41,7 +41,7 @@ function Header() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="https://github.com/wuxixi/ResearcherNexus" target="_blank">
+            <Link href="https://github.com/wuxixixi/ResearcherNexus" target="_blank">
               <GithubOutlined />
               Star on GitHub
             </Link>
