@@ -1,6 +1,6 @@
-# Configuration Guide
+# 安装向导
 
-## Quick Settings
+## 快速安装
 
 Copy the `conf.yaml.example` file to `conf.yaml` and modify the configurations to match your specific settings and requirements.
 
@@ -11,7 +11,7 @@ cp conf.yaml.example conf.yaml
 
 ## Which models does ResearcherNexus support?
 
-In ResearcherNexus, currently we only support non-reasoning models, which means models like OpenAI's o1/o3 or DeepSeek's R1 are not supported yet, but we will add support for them in the future.
+在ResearcherNexus中，目前我们仅支持非推理模型，这意味着像 OpenAI 的 o1/o3 或 DeepSeek 的 R1 等模型暂不支持，但我们未来会增加对它们的支持。
 
 ### Supported Models
 
