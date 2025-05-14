@@ -132,7 +132,7 @@ export function InputBox({
           placeholder={
             feedback
               ? `Describe how you ${feedback.option.text.toLocaleLowerCase()}?`
-              : "What can I do for you?"
+              : "输入您的问题？"
           }
           value={message}
           onCompositionStart={() => setImeStatus("active")}

@@ -39,9 +39,10 @@ export function Jumbotron() {
           <AuroraText>，深度洞察</AuroraText>
         </h1>
         <p className="max-w-4xl p-2 text-center text-sm opacity-85 md:text-2xl">
-          由上海社会科学院觉测团队精心开发的 ResearcherNexus，是一款卓越的个人深度研究助手。
-          它集成了搜索引擎、网络爬虫、Python 编程支持以及 MCP 服务等多元强劲工具，不仅能够快速抓取并分析海量信息，为用户奉上即时且精准的研究见解，还可生成内容详实、逻辑严密的综合报告。此外，其独特的功能还能制作出极具吸引力的专题播客，助力用户以更丰富的形式传递研究成果 ，全方位满足学术探索与知识挖掘需求。
-          .
+          由上海社会科学院觉测团队精心开发的 ResearcherNexus，是您卓越的个人深度研究助手。
+          集成搜索引擎、网络爬虫、Python 编程支持以及 MCP 服务等多元强劲工具，不仅能够快速抓取并分析海量信息，为您奉上即时且精准的研究见解，还可生成内容详实、逻辑严密的综合报告。
+          此外，还能制作出极具吸引力的专题播客，助力用户以更丰富的形式传递研究成果 ，全方位满足学术探索与知识挖掘需求。
+          
         </p>
         <div className="flex gap-6">
           <Button className="hidden text-lg md:flex md:w-42" size="lg" asChild>
