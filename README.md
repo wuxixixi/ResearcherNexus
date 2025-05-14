@@ -227,27 +227,27 @@ DeerFlow实现了一个模块化的多智能体系统架构，专为自动化研
 
 # 文件夹结构
 
-ResearcherNexus/ \n
-├── src/                     # 核心源代码目录 \n
-│   ├── agents/              # 代理定义和实现 \n
-│   ├── config/              # 配置管理 \n
-│   ├── crawler/             # 网页爬取功能 \n
-│   ├── graph/               # LangGraph工作流定义 \n
-│   ├── llms/                # 语言模型集成 \n
-│   ├── podcast/             # 播客生成功能 \n
-│   ├── ppt/                 # 演示文稿生成 \n
-│   ├── prompts/             # 提示模板 \n
-│   ├── prose/               # 文本处理功能 \n
-│   ├── server/              # 服务器实现 \n
-│   ├── tools/               # 工具集成(搜索、爬取、代码执行) \n
-│   └── utils/               # 通用工具函数 \n
-├── web/                     # Web UI实现(基于Next.js) \n
-│   ├── src/                 # Web UI源代码 \n
-│   ├── public/              # 静态资源 \n
-├── examples/                # 示例研究报告 \n
-├── tests/                   # 测试代码 \n
-├── docs/                    # 文档 \n
-└── assets/                  # 资源文件 \n
+<!--ResearcherNexus/-->
+<!--├── src/                     # 核心源代码目录-->
+<!--│   ├── agents/              # 代理定义和实现-->
+<!--│   ├── config/              # 配置管理-->
+<!--│   ├── crawler/             # 网页爬取功能-->
+<!--│   ├── graph/               # LangGraph工作流定义-->
+<!--│   ├── llms/                # 语言模型集成-->
+<!--│   ├── podcast/             # 播客生成功能-->
+<!--│   ├── ppt/                 # 演示文稿生成-->
+<!--│   ├── prompts/             # 提示模板-->
+<!--│   ├── prose/               # 文本处理功能-->
+<!--│   ├── server/              # 服务器实现-->
+<!--│   ├── tools/               # 工具集成(搜索、爬取、代码执行)-->
+<!--│   └── utils/               # 通用工具函数-->
+<!--├── web/                     # Web UI实现(基于Next.js)-->
+<!--│   ├── src/                 # Web UI源代码-->
+<!--│   ├── public/              # 静态资源-->
+<!--├── examples/                # 示例研究报告-->
+<!--├── tests/                   # 测试代码-->
+<!--├── docs/                    # 文档-->
+<!--└── assets/                  # 资源文件-->
 
 
 
