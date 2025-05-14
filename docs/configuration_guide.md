@@ -2,7 +2,7 @@
 
 ## 快速安装
 
-Copy the `conf.yaml.example` file to `conf.yaml` and modify the configurations to match your specific settings and requirements.
+将 `conf.yaml.example`  文件复制为`conf.yaml` 并修改配置以匹配您的特定设置和要求：
 
 ```bash
 cd ResearcherNexus
@@ -70,29 +70,30 @@ BASIC_MODEL:
   base_url: "http://localhost:11434" # Local service address of Ollama, which can be started/viewed via ollama serve
 ```
 
-### How to use OpenRouter models?
+### 怎样使用 OpenRouter 模型？
 
-ResearcherNexus supports the integration of OpenRouter models. You can refer to [litellm OpenRouter](https://docs.litellm.ai/docs/providers/openrouter). To use OpenRouter models, you need to:
-1. Obtain the OPENROUTER_API_KEY from OpenRouter (https://openrouter.ai/) and set it in the environment variable.
-2. Add the `openrouter/` prefix before the model name.
-3. Configure the correct OpenRouter base URL.
+ResearcherNexus支持OpenRout模型的集成，您可以参考 [litellm OpenRouter](https://docs.litellm.ai/docs/providers/openrouter)：
 
-The following is a configuration example for using OpenRouter models:
-1. Configure OPENROUTER_API_KEY in the environment variable (such as the `.env` file)
+1. 从 OpenRouter（https://openrouter.ai/）获取 OPENROUTER_API_KEY ，并在环境变量中进行设置。
+2. 在型号名称前添加 `openrouter/` 前缀。
+3. 配置正确的 OpenRouter base URL。以下是使用OpenRouterModel的配置示例：
+
+以下是使用OpenRout模型的配置示例：
+1. 配置 OPENROUTER_API_KEY 的环境变量（在`.env` 文件中）
 ```ini
 OPENROUTER_API_KEY=""
 ```
-2. Set the model name in `conf.yaml`
+2. 在 `conf.yaml`中配置模型名称
 ```yaml
 BASIC_MODEL:
   model: "openrouter/google/palm-2-chat-bison"
 ```
 
-Note: The available models and their exact names may change over time. Please verify the currently available models and their correct identifiers in [OpenRouter's official documentation](https://openrouter.ai/docs).
+注意： 可用的型号及其确切名称可能会随着时间的推移而改变。请在 [OpenRouter's official documentation](https://openrouter.ai/docs)（OpenRout的官方文档）中验证当前可用的型号及其正确的标识符。
 
-### How to use Azure models?
+### 怎样使用 Azure 模型?
 
-ResearcherNexus supports the integration of Azure models. You can refer to [litellm Azure](https://docs.litellm.ai/docs/providers/azure). Configuration example of `conf.yaml`:
+ResearcherNexus支持Azure模型（亚马逊云模型）的集成，可以参考 [litellm Azure](https://docs.litellm.ai/docs/providers/azure)。`conf.yaml`的配置示例：
 ```yaml
 BASIC_MODEL:
   model: "azure/gpt-4o-2024-08-06"
