@@ -3,19 +3,19 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[English](./README.md) | [简体中文](./README_zh.md) | [日本語](./README_ja.md)
+[English](./README_en.md) | [简体中文](./README.md) | [日本語](./README_ja.md)
 
 > オープンソースから生まれ、オープンソースに還元する。
 
 **ResearcherNexus**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）は、オープンソースコミュニティの素晴らしい成果の上に構築されたコミュニティ主導の深層研究フレームワークです。私たちの目標は、言語モデルとウェブ検索、クローリング、Pythonコード実行などの専門ツールを組み合わせながら、これを可能にしたコミュニティに貢献することです。
 
-詳細については[DeerFlowの公式ウェブサイト](https://ResearcherNexus.tech/)をご覧ください。
+詳細については[DeerFlowの公式ウェブサイト](https://www.sass.org.cn/)をご覧ください。
 
 ## デモ
 
 ### ビデオ
 
-https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
+
 
 このデモでは、ResearcherNexusの使用方法を紹介しています：
 - MCPサービスとのシームレスな統合
