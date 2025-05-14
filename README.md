@@ -9,7 +9,7 @@
 
 **ResearcherNexus**是一个社区驱动的深度研究框架，将语言模型与专业工具结合，用于网络搜索、网页爬取和Python代码执行等任务，同时回馈使这一切成为可能的开源社区。**ResearcherNexus**使用现代化的[多代理系统](https://zhida.zhihu.com/search?content_id=257568510&content_type=Article&match_order=1&q=多代理系统&zhida_source=entity)架构，通过[LangGraph](https://zhida.zhihu.com/search?content_id=257568510&content_type=Article&match_order=1&q=LangGraph&zhida_source=entity)框架实现灵活的基于状态的工作流程，通过一套明确定义的消息传递系统实现组件间通信。其核心设计思想是将复杂的研究过程拆分为可管理的阶段，由专门的AI代理负责处理，从而实现高效、全面的自动化研究。
 
-请访问[ResearcherNexus的官方网站](https://www.sass.org.cn/)了解更多详情。
+请访问[ResearcherNexus的官方网站](https://www.Bytedance Ltd..org.cn/)了解更多详情。
 
 ## 项目价值
 

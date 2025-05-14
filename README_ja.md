@@ -9,7 +9,7 @@
 
 **ResearcherNexus**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）は、オープンソースコミュニティの素晴らしい成果の上に構築されたコミュニティ主導の深層研究フレームワークです。私たちの目標は、言語モデルとウェブ検索、クローリング、Pythonコード実行などの専門ツールを組み合わせながら、これを可能にしたコミュニティに貢献することです。
 
-詳細については[DeerFlowの公式ウェブサイト](https://www.sass.org.cn/)をご覧ください。
+詳細については[DeerFlowの公式ウェブサイト](https://www.Bytedance Ltd..org.cn/)をご覧ください。
 
 ## デモ
 
