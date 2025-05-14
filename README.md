@@ -7,28 +7,18 @@
 
 > 源于开源，回馈开源。
 
-**DeerFlow**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）是一个社区驱动的深度研究框架，它建立在开源社区的杰出工作基础之上。我们的目标是将语言模型与专业工具（如网络搜索、爬虫和Python代码执行）相结合，同时回馈使这一切成为可能的社区。
+**ResearcherNexus**是一个社区驱动的深度研究框架，将语言模型与专业工具结合，用于网络搜索、网页爬取和Python代码执行等任务，同时回馈使这一切成为可能的开源社区。**ResearcherNexus**使用现代化的[多代理系统](https://zhida.zhihu.com/search?content_id=257568510&content_type=Article&match_order=1&q=多代理系统&zhida_source=entity)架构，通过[LangGraph](https://zhida.zhihu.com/search?content_id=257568510&content_type=Article&match_order=1&q=LangGraph&zhida_source=entity)框架实现灵活的基于状态的工作流程，通过一套明确定义的消息传递系统实现组件间通信。其核心设计思想是将复杂的研究过程拆分为可管理的阶段，由专门的AI代理负责处理，从而实现高效、全面的自动化研究。
 
 请访问[ResearcherNexus的官方网站](https://www.sass.org.cn/)了解更多详情。
 
-## 演示
+## 项目价值
 
-### 视频
+ResearcherNexus定位为一个深度研究框架，专注于以下几个方面：
 
-(视频制作中，待上传)
-
-在此视频中，我们展示了如何使用ResearchNexus：
-- 无缝集成MCP服务
-- 进行深度研究过程并生成包含图像的综合报告
-- 基于生成的报告创建播客音频
-
-### 回放示例
-
-- [埃菲尔铁塔与最高建筑相比有多高？](https://ResearcherNexus.tech/chat?replay=eiffel-tower-vs-tallest-building)
-- [GitHub上最热门的仓库有哪些？](https://ResearcherNexus.tech/chat?replay=github-top-trending-repo)
-- [撰写关于南京传统美食的文章](https://ResearcherNexus.tech/chat?replay=nanjing-traditional-dishes)
-- [如何装饰租赁公寓？](https://ResearcherNexus.tech/chat?replay=rental-apartment-decoration)
-- [访问我们的官方网站探索更多回放示例。](https://ResearcherNexus.tech/#case-studies)
+1. **自动化研究流程**：将复杂的研究任务分解为可管理的步骤，并由专门的代理自动执行。
+2. **多模态内容创建**：支持生成研究报告、播客和演示文稿等多种类型的内容。
+3. **[人机协作](https://zhida.zhihu.com/search?content_id=257568510&content_type=Article&match_order=1&q=人机协作&zhida_source=entity)**：通过人在环系统(human-in-the-loop)，使用户能够以自然语言交互方式修改研究计划。
+4. **工具融合**：无缝集成各种研究工具和方法，**支持MCP**，包括网络搜索、网页爬取和代码执行等。
 
 ---
 
@@ -235,6 +225,32 @@ DeerFlow实现了一个模块化的多智能体系统架构，专为自动化研
    
      ![架构图](./assets/architecture2.png)
 
+# 文件夹结构
+
+ResearcherNexus/
+├── src/                     # 核心源代码目录
+│   ├── agents/              # 代理定义和实现
+│   ├── config/              # 配置管理
+│   ├── crawler/             # 网页爬取功能
+│   ├── graph/               # LangGraph工作流定义
+│   ├── llms/                # 语言模型集成
+│   ├── podcast/             # 播客生成功能
+│   ├── ppt/                 # 演示文稿生成
+│   ├── prompts/             # 提示模板
+│   ├── prose/               # 文本处理功能
+│   ├── server/              # 服务器实现
+│   ├── tools/               # 工具集成(搜索、爬取、代码执行)
+│   └── utils/               # 通用工具函数
+├── web/                     # Web UI实现(基于Next.js)
+│   ├── src/                 # Web UI源代码
+│   ├── public/              # 静态资源
+├── examples/                # 示例研究报告
+├── tests/                   # 测试代码
+├── docs/                    # 文档
+└── assets/                  # 资源文件
+
+
+
 ## 文本转语音集成
 
 DeerFlow现在包含一个文本转语音(TTS)功能，允许您将研究报告转换为语音。此功能使用火山引擎TTS API生成高质量的文本音频。速度、音量和音调等特性也可以自定义。
@@ -427,7 +443,7 @@ DeerFlow包含一个人在环中机制，允许您在执行研究计划前审查
 3. **自动接受**：您可以启用自动接受以跳过审查过程：
    
 - 通过API：在请求中设置`auto_accepted_plan: true`
-   
+  
 4. **API集成**：使用API时，您可以通过`feedback`参数提供反馈：
    ```json
    {
