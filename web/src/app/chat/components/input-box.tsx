@@ -153,9 +153,8 @@ export function InputBox({
                   Investigation Mode: {backgroundInvestigation ? "On" : "Off"}
                 </h3>
                 <p>
-                  When enabled, ResearcherNexus will perform a quick search before
-                  planning. This is useful for researches related to ongoing
-                  events and news.
+                启用后，ResearcherNexus 将在规划前进行快速搜索。
+                这对与正在发生的事件和新闻相关的研究很有用。
                 </p>
               </div>
             }
@@ -171,7 +170,7 @@ export function InputBox({
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
             >
-              <Detective /> Investigation
+              <Detective /> 前期调查
             </Button>
           </Tooltip>
         </div>

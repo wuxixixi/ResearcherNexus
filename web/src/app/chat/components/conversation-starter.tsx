@@ -8,10 +8,10 @@ import { cn } from "~/lib/utils";
 import { Welcome } from "./welcome";
 
 const questions = [
-  "How many times taller is the Eiffel Tower than the tallest building in the world?",
-  "How many years does an average Tesla battery last compared to a gasoline engine?",
-  "How many liters of water are required to produce 1 kg of beef?",
-  "How many times faster is the speed of light compared to the speed of sound?",
+  "中国“十四五”规划收官阶段的社会科学重点研究方向是什么？",
+  "2025年全球气候谈判30周年（COP30）可能推动哪些社会政策创新？",
+  "世界经济温和复苏（IMF预测3.2%增长）背景下，社会不平等问题会有哪些新特征？",
+  "《中国社会科学文摘》2025年各期主题如何体现中国学界对全球性问题的回应？",
 ];
 export function ConversationStarter({
   className,
