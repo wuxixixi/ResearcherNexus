@@ -76,7 +76,7 @@ export function ResearchBlock({
         <div className="absolute right-4 flex h-9 items-center justify-center">
           {hasReport && !reportStreaming && (
             <>
-              <Tooltip title="Generate podcast">
+              <Tooltip title="生成播客">
                 <Button
                   className="text-gray-400"
                   size="icon"

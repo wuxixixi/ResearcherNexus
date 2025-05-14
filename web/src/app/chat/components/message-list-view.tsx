@@ -425,9 +425,9 @@ function PodcastCard({
             {isGenerating ? <LoadingOutlined /> : <Headphones size={16} />}
             <RainbowText animated={isGenerating}>
               {isGenerating
-                ? "Generating podcast..."
+                ? "播客生成中..."
                 : isPlaying
-                  ? "Now playing podcast..."
+                  ? "现在可以播放了..."
                   : "Podcast"}
             </RainbowText>
           </div>
