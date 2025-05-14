@@ -9,56 +9,57 @@ cd ResearcherNexus
 cp conf.yaml.example conf.yaml
 ```
 
-## Which models does ResearcherNexus support?
+## ResearcherNexus支持哪些模型?
 
 在ResearcherNexus中，目前我们仅支持非推理模型，这意味着像 OpenAI 的 o1/o3 或 DeepSeek 的 R1 等模型暂不支持，但我们未来会增加对它们的支持。
 
-### Supported Models
+### 支持模型
 
-`doubao-1.5-pro-32k-250115`, `gpt-4o`, `qwen-max-latest`, `gemini-2.0-flash`, `deepseek-v3`, and theoretically any other non-reasoning chat models that implement the OpenAI API specification.
+`doubao-1.5-pro-32k-250115`, `gpt-4o`, `qwen-max-latest`, `gemini-2.0-flash`, `deepseek-v3`，并且从理论上来说，任何其他实现 OpenAI API 规范的非推理聊天模型也是如此。
 
-> [!NOTE]
-> The Deep Research process requires the model to have a **longer context window**, which is not supported by all models.
-> A work-around is to set the `Max steps of a research plan` to `2` in the settings dialog located on the top right corner of the web page,
-> or set `max_step_num` to `2` when invoking the API.
+> 【!注意】
+> 深度研究过程要求模型具有更长的上下文窗口，并非所有模型都支持。
+> 一个解决方法是在网页右上角的设置对话框中将研究计划的最大步骤设置为 2，
+> 或者在调用 API 时将 max_step_num 设置为 2。
 
-### How to switch models?
-You can switch the model in use by modifying the `conf.yaml` file in the root directory of the project, using the configuration in the [litellm format](https://docs.litellm.ai/docs/providers/openai_compatible).
+### 如何切换模型?
+您可以通过使用  [litellm format](https://docs.litellm.ai/docs/providers/openai_compatible)的配置修改项目根目录中的`conf.yaml` 文件来切换正在使用的模型。
 
 ---
 
-### How to use OpenAI-Compatible models?
+### 如何使用 OpenAI 兼容模型？
 
-ResearcherNexus supports integration with OpenAI-Compatible models, which are models that implement the OpenAI API specification. This includes various open-source and commercial models that provide API endpoints compatible with the OpenAI format. You can refer to [litellm OpenAI-Compatible](https://docs.litellm.ai/docs/providers/openai_compatible) for detailed documentation.
-The following is a configuration example of `conf.yaml` for using OpenAI-Compatible models:
+ResearcherNexus 支持与 OpenAI 兼容模型的集成，这些模型是实现 OpenAI API 规范的模型。这包括提供与 OpenAI 格式兼容的 API 端点的各种开源和商业模型。您可以参考 [litellm OpenAI-Compatible](https://docs.litellm.ai/docs/providers/openai_compatible) 了解详细的留档。
+
+以下是使用 OpenAI-Compatible 模型的`conf.yaml` 配置示例：
 
 ```yaml
-# An example of Doubao models served by VolcEngine
+# 通过火山引擎使用豆包模型的示例
 BASIC_MODEL:
   base_url: "https://ark.cn-beijing.volces.com/api/v3"
   model: "doubao-1.5-pro-32k-250115"
   api_key: YOUR_API_KEY
 
-# An example of Aliyun models
+# 阿里云模型示例
 BASIC_MODEL:
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   model: "qwen-max-latest"
   api_key: YOUR_API_KEY
 
-# An example of deepseek official models
+# deepseek官方模型示例
 BASIC_MODEL:
   base_url: "https://api.deepseek.com"
   model: "deepseek-chat"
   api_key: YOU_API_KEY
 
-# An example of Google Gemini models using OpenAI-Compatible interface
+# 使用OpenAI兼容界面的Google gemini模型示例
 BASIC_MODEL:
   base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
   model: "gemini-2.0-flash"
   api_key: YOUR_API_KEY
 ```
 
-### How to use Ollama models?
+### 如何使用 Ollama 模型？
 
 ResearcherNexus supports the integration of Ollama models. You can refer to [litellm Ollama](https://docs.litellm.ai/docs/providers/ollama). <br>
 The following is a configuration example of `conf.yaml` for using Ollama models:
