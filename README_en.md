@@ -208,7 +208,8 @@ SEARCH_API=tavily
 DeerFlow implements a modular multi-agent system architecture designed for automated research and code analysis. The system is built on LangGraph, enabling a flexible state-based workflow where components communicate through a well-defined message passing system.
 
 ![Architecture Diagram](./assets/architecture.png)
-> See it live at [deerflow.tech](https://deerflow.tech/#multi-agent-architecture)
+
+
 
 The system employs a streamlined workflow with the following components:
 
@@ -229,8 +230,12 @@ The system employs a streamlined workflow with the following components:
 
 4. **Reporter**: Final stage processor for research outputs
    - Aggregates findings from the research team
+   
    - Processes and structures the collected information
+   
    - Generates comprehensive research reports
+   
+     ![架构图](./assets/architecture2.png)
 
 ## Text-to-Speech Integration
 
@@ -422,8 +427,9 @@ DeerFlow includes a human in the loop mechanism that allows you to review, edit,
    - The system will incorporate your feedback and generate a revised plan
 
 3. **Auto-acceptance**: You can enable auto-acceptance to skip the review process:
-   - Via API: Set `auto_accepted_plan: true` in your request
-
+   
+- Via API: Set `auto_accepted_plan: true` in your request
+   
 4. **API Integration**: When using the API, you can provide feedback through the `feedback` parameter:
    ```json
    {

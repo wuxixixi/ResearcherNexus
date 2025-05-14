@@ -206,7 +206,8 @@ SEARCH_API=tavily
 DeerFlow实现了一个模块化的多智能体系统架构，专为自动化研究和代码分析而设计。该系统基于LangGraph构建，实现了灵活的基于状态的工作流，其中组件通过定义良好的消息传递系统进行通信。
 
 ![架构图](./assets/architecture.png)
-> 在[deerflow.tech](https://deerflow.tech/#multi-agent-architecture)上查看实时演示
+
+
 
 系统采用了精简的工作流程，包含以下组件：
 
@@ -227,8 +228,12 @@ DeerFlow实现了一个模块化的多智能体系统架构，专为自动化研
 
 4. **报告员**：研究输出的最终阶段处理器
    - 汇总研究团队的发现
+   
    - 处理和组织收集的信息
+   
    - 生成全面的研究报告
+   
+     ![架构图](./assets/architecture2.png)
 
 ## 文本转语音集成
 
@@ -420,8 +425,9 @@ DeerFlow包含一个人在环中机制，允许您在执行研究计划前审查
    - 系统将整合您的反馈并生成修订后的计划
 
 3. **自动接受**：您可以启用自动接受以跳过审查过程：
-   - 通过API：在请求中设置`auto_accepted_plan: true`
-
+   
+- 通过API：在请求中设置`auto_accepted_plan: true`
+   
 4. **API集成**：使用API时，您可以通过`feedback`参数提供反馈：
    ```json
    {
