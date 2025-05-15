@@ -4,6 +4,7 @@
 import asyncio
 import logging
 from src.graph import build_graph
+from src.config.langsmith import create_run_metadata, create_run_tags
 
 # Configure logging
 logging.basicConfig(
@@ -55,6 +56,19 @@ async def run_agent_workflow_async(
         "auto_accepted_plan": True,
         "enable_background_investigation": enable_background_investigation,
     }
+    
+    # Create LangSmith metadata
+    metadata = create_run_metadata({
+        "user_input": user_input,
+        "max_plan_iterations": max_plan_iterations,
+        "max_step_num": max_step_num,
+        "enable_background_investigation": enable_background_investigation,
+        "debug": debug,
+    })
+    
+    # Create LangSmith tags
+    tags = create_run_tags(["workflow", "researchernexus"])
+    
     config = {
         "configurable": {
             "thread_id": "default",
@@ -73,7 +87,11 @@ async def run_agent_workflow_async(
             },
         },
         "recursion_limit": 100,
+        # Add LangSmith configuration
+        "tags": tags,
+        "metadata": metadata,
     }
+    
     last_message_cnt = 0
     async for s in graph.astream(
         input=initial_state, config=config, stream_mode="values"
