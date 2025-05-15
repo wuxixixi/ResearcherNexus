@@ -8,7 +8,7 @@
 
 ## Where's the name ResearcherNexus come from?
 
-ResearcherNexus is short for **D**eep **E**xploration and **E**fficient **R**esearch **Flow**. It is named after the deer, which is a symbol of gentleness and elegance. We hope ResearcherNexus can bring a gentle and elegant deep research experience to you.
+ResearcherNexus  is a symbol of gentleness and elegance. We hope ResearcherNexus can bring a gentle and elegant deep research experience to you.
 
 ## Which models does ResearcherNexus support?
 
