@@ -37,7 +37,7 @@ sudo apt install -y git curl wget vim
 
 ```bash
 # 克隆仓库
-git clone https://github.com/bytedance/ResearcherNexus.git
+git clone https://github.com/wuxixixi/ResearcherNexus.git
 cd ResearcherNexus
 ```
 
