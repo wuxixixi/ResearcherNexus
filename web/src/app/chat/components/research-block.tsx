@@ -124,7 +124,7 @@ export function ResearchBlock({
                 value="report"
                 disabled={!hasReport}
               >
-                Report
+                报告区
               </TabsTrigger>
               <TabsTrigger className="px-8" value="activities">
                 研究区
