@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # 后端API服务
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: researchernexus-api
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=production
+      - DEBUG=False
+    volumes:
+      - api_data:/app/data
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+
+  # 前端Web服务
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: researchernexus-web
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:stable-alpine
+    container_name: researchernexus-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - web_static:/usr/share/nginx/html/static
+    depends_on:
+      - api
+      - web
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+volumes:
+  api_data:
+  web_static: 
