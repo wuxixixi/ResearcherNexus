@@ -14,7 +14,7 @@ import { CommandGroup, CommandItem, CommandSeparator } from "../../ui/command";
 const options = [
   {
     value: "improve",
-    label: "提高写作水平",
+    label: "润色",
     icon: RefreshCcwDot,
   },
   // TODO: add this back in
