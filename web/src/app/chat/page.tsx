@@ -26,7 +26,7 @@ export default function HomePage() {
           <Tooltip title="Star ResearcherNexus on GitHub">
             <Button variant="ghost" size="icon" asChild>
               <Link
-                href="https://github.com/wuxixi/ResearcherNexus"
+                href="https://github.com/wuxixixixi/ResearcherNexus"
                 target="_blank"
               >
                 <GithubOutlined />

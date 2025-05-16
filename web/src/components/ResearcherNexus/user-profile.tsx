@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -17,7 +18,7 @@ import {
 import { useAuth } from "~/lib/auth-context";
 
 export const UserProfile: React.FC = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const router = useRouter();
 
   if (!isAuthenticated) {
@@ -48,6 +49,15 @@ export const UserProfile: React.FC = () => {
             <User className="mr-2 h-4 w-4" />
             <span>个人信息</span>
           </DropdownMenuItem>
+          
+          {isAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="w-full flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>用户管理</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

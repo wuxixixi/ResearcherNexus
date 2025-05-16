@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 import { motion } from "framer-motion";
-import { FastForward, Play } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { FastForward, Play, AlertCircle } from "lucide-react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { RainbowText } from "~/components/ResearcherNexus/rainbow-text";
 import { Button } from "~/components/ui/button";
@@ -13,6 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import { fastForwardReplay } from "~/core/api";
 import { useReplayMetadata } from "~/core/api/hooks";
 import type { Option } from "~/core/messages";
@@ -20,6 +29,7 @@ import { useReplay } from "~/core/replay";
 import { sendMessage, useStore } from "~/core/store";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
+import { useAuth } from "~/lib/auth-context";
 
 import { ConversationStarter } from "./conversation-starter";
 import { InputBox } from "./input-box";
@@ -27,6 +37,8 @@ import { MessageListView } from "./message-list-view";
 import { Welcome } from "./welcome";
 
 export function MessagesBlock({ className }: { className?: string }) {
+  const { isAuthenticated, incrementUsage, getRemainingUsage, user } = useAuth();
+  const router = useRouter();
   const messageCount = useStore((state) => state.messageIds.length);
   const responding = useStore((state) => state.responding);
   const { isReplay } = useReplay();
@@ -34,8 +46,50 @@ export function MessagesBlock({ className }: { className?: string }) {
   const [replayStarted, setReplayStarted] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [feedback, setFeedback] = useState<{ option: Option } | null>(null);
+  const [usageLimitReached, setUsageLimitReached] = useState(false);
+  const [usageData, setUsageData] = useState({ used: 0, limit: 0, remaining: 0 });
+  
+  // 当用户未登录时，将其重定向到登录页
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+  
+  // 获取用户使用情况
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const data = getRemainingUsage();
+      setUsageData(data);
+    }
+  }, [isAuthenticated, user, getRemainingUsage]);
+
+  // 发送消息前检查用户使用限制
+  const checkUsageLimitBeforeSend = useCallback(async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return false;
+    }
+    
+    const result = await incrementUsage();
+    if (!result.success) {
+      setUsageLimitReached(true);
+      return false;
+    }
+    
+    // 更新用户使用情况
+    const data = getRemainingUsage();
+    setUsageData(data);
+    return true;
+  }, [isAuthenticated, incrementUsage, getRemainingUsage, router]);
+  
   const handleSend = useCallback(
     async (message: string, options?: { interruptFeedback?: string }) => {
+      // 在发送消息前检查用户使用限制
+      if (!isReplay && !await checkUsageLimitBeforeSend()) {
+        return;
+      }
+      
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       try {
@@ -51,7 +105,7 @@ export function MessagesBlock({ className }: { className?: string }) {
         );
       } catch {}
     },
-    [feedback],
+    [feedback, checkUsageLimitBeforeSend, isReplay],
   );
   const handleCancel = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -75,6 +129,17 @@ export function MessagesBlock({ className }: { className?: string }) {
     setFastForwarding(!fastForwarding);
     fastForwardReplay(!fastForwarding);
   }, [fastForwarding]);
+  
+  // 关闭使用限制提示对话框
+  const closeUsageLimitDialog = useCallback(() => {
+    setUsageLimitReached(false);
+  }, []);
+
+  // 如果未登录，应该返回空内容或加载中状态
+  if (!isAuthenticated) {
+    return <div className="flex h-full items-center justify-center">正在检查认证状态...</div>;
+  }
+  
   return (
     <div className={cn("flex h-full flex-col", className)}>
       <MessageListView
@@ -98,6 +163,12 @@ export function MessagesBlock({ className }: { className?: string }) {
             onCancel={handleCancel}
             onRemoveFeedback={handleRemoveFeedback}
           />
+          {/* 显示用户使用情况 */}
+          {isAuthenticated && user && !user.role.includes('admin') && (
+            <div className="absolute right-2 top-[-30px] text-xs text-muted-foreground">
+              今日使用次数: {usageData.used}/{usageData.limit}
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -180,6 +251,26 @@ export function MessagesBlock({ className }: { className?: string }) {
           </motion.div>
         </>
       )}
+      
+      {/* 使用限制对话框 */}
+      <Dialog open={usageLimitReached} onOpenChange={setUsageLimitReached}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              使用次数已达上限
+            </DialogTitle>
+            <DialogDescription>
+              您今天的使用次数已达到{usageData.limit}次限制。请明天再试或联系管理员增加配额。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeUsageLimitDialog}>
+              知道了
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

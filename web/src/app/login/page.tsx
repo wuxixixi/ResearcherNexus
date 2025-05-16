@@ -161,6 +161,24 @@ export default function LoginPage() {
             {/* Login Form */}
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4 pt-4">
+                {/* 显示错误信息 */}
+                {error && (
+                  <div className="rounded-md bg-red-50 p-3">
+                    <p className="text-sm text-red-600">{error}</p>
+                    <button
+                      type="button"
+                      className="mt-2 text-xs text-blue-600 hover:underline"
+                      onClick={() => {
+                        localStorage.removeItem("researchernexus_users");
+                        localStorage.removeItem("researchernexus_current_user");
+                        window.location.reload();
+                      }}
+                    >
+                      重置系统（遇到登录问题时点击）
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <div className="relative">
                     <UserCircle className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -204,8 +222,6 @@ export default function LoginPage() {
                     <p className="text-sm text-red-500">{validationErrors.login.password}</p>
                   )}
                 </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
 
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "登录中..." : "登录"}
