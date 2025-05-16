@@ -45,7 +45,7 @@ This project is open source and available under the [MIT License](../LICENSE).
 ## Acknowledgments
 
 We extend our heartfelt gratitude to the open source community for their invaluable contributions.
-DeerFlow is built upon the foundation of these outstanding projects:
+RearcherNexus is built upon the foundation of these outstanding projects:
 
 In particular, we want to express our deep appreciation for:
 * [Next.js](https://nextjs.org/) for their exceptional framework

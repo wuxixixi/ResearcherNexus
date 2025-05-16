@@ -142,7 +142,7 @@ bootstrap.bat -d
 
 ## 支持的搜索引擎
 
-DeerFlow支持多种搜索引擎，可以在`.env`文件中通过`SEARCH_API`变量进行配置：
+RearcherNexus支持多种搜索引擎，可以在`.env`文件中通过`SEARCH_API`变量进行配置：
 
 - **Tavily**（默认）：专为AI应用设计的专业搜索API
     - 需要在`.env`文件中设置`TAVILY_API_KEY`
@@ -208,7 +208,7 @@ SEARCH_API=tavily
 
 ## 架构
 
-DeerFlow实现了一个模块化的多智能体系统架构，专为自动化研究和代码分析而设计。该系统基于LangGraph构建，实现了灵活的基于状态的工作流，其中组件通过定义良好的消息传递系统进行通信。
+RearcherNexus实现了一个模块化的多智能体系统架构，专为自动化研究和代码分析而设计。该系统基于LangGraph构建，实现了灵活的基于状态的工作流，其中组件通过定义良好的消息传递系统进行通信。
 
 ![架构图](./assets/architecture.png)
 
@@ -270,7 +270,7 @@ ResearcherNexus/
 
 ## 文本转语音集成
 
-DeerFlow现在包含一个文本转语音(TTS)功能，允许您将研究报告转换为语音。此功能使用火山引擎TTS API生成高质量的文本音频。速度、音量和音调等特性也可以自定义。
+ResarcherNexus现在包含一个文本转语音(TTS)功能，允许您将研究报告转换为语音。此功能使用火山引擎TTS API生成高质量的文本音频。速度、音量和音调等特性也可以自定义。
 
 ### 使用TTS API
 
@@ -319,11 +319,11 @@ make format
 
 ### 使用LangGraph Studio进行调试
 
-DeerFlow使用LangGraph作为其工作流架构。您可以使用LangGraph Studio实时调试和可视化工作流。
+ResarcherNexus使用LangGraph作为其工作流架构。您可以使用LangGraph Studio实时调试和可视化工作流。
 
 #### 本地运行LangGraph Studio
 
-DeerFlow包含一个`langgraph.json`配置文件，该文件定义了LangGraph Studio的图结构和依赖关系。该文件指向项目中定义的工作流图，并自动从`.env`文件加载环境变量。
+RearcherNexus包含一个`langgraph.json`配置文件，该文件定义了LangGraph Studio的图结构和依赖关系。该文件指向项目中定义的工作流图，并自动从`.env`文件加载环境变量。
 
 ##### Mac
 
@@ -371,7 +371,7 @@ langgraph dev
 
 ## 示例
 
-以下示例展示了DeerFlow的功能：
+以下示例展示了RearcherNexus的功能：
 
 ### 研究报告
 
@@ -448,7 +448,7 @@ uv run main.py --help
 
 ### 人在环中
 
-DeerFlow包含一个人在环中机制，允许您在执行研究计划前审查、编辑和批准：
+RearcherNexus包含一个人在环中机制，允许您在执行研究计划前审查、编辑和批准：
 
 1. **计划审查**：启用人在环中时，系统将在执行前向您展示生成的研究计划
 
@@ -491,22 +491,22 @@ DeerFlow包含一个人在环中机制，允许您在执行研究计划前审查
 
 ## 致谢
 
-DeerFlow建立在开源社区的杰出工作基础之上。我们深深感谢所有使DeerFlow成为可能的项目和贡献者。诚然，我们站在巨人的肩膀上。
+RearcherNexus建立在开源社区的杰出工作基础之上。我们深深感谢所有使RearcherNexus成为可能的项目和贡献者。诚然，我们站在巨人的肩膀上。
 
 我们要向以下项目表达诚挚的感谢，感谢他们的宝贵贡献：
 
 - **[LangChain](https://github.com/langchain-ai/langchain)**：他们卓越的框架为我们的LLM交互和链提供动力，实现了无缝集成和功能。
-- **[LangGraph](https://github.com/langchain-ai/langgraph)**：他们在多智能体编排方面的创新方法对于实现DeerFlow复杂工作流至关重要。
+- **[LangGraph](https://github.com/langchain-ai/langgraph)**：他们在多智能体编排方面的创新方法对于实现RearcherNexus复杂工作流至关重要。
 
 这些项目展示了开源协作的变革力量，我们很自豪能够在他们的基础上构建。
 
 ### 核心贡献者
-衷心感谢`DeerFlow`的核心作者，他们的愿景、热情和奉献使这个项目得以实现：
+衷心感谢`RearcherNexus`的核心作者，他们的愿景、热情和奉献使这个项目得以实现：
 
 - **[Daniel Walnut](https://github.com/hetaoBackend/)**
 - **[Henry Li](https://github.com/magiccube/)**
 
-您坚定不移的承诺和专业知识是DeerFlow成功的驱动力。我们很荣幸有您引领这一旅程。
+您坚定不移的承诺和专业知识是RearcherNexus成功的驱动力。我们很荣幸有您引领这一旅程。
 
 ## Star History
 
