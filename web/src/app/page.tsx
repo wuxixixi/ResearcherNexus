@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { Button } from "~/components/ui/button";
+import { UserProfile } from "~/components/ResearcherNexus/user-profile";
 
 import { Jumbotron } from "./landing/components/jumbotron";
 import { Ray } from "./landing/components/ray";
@@ -40,6 +41,7 @@ function Header() {
           <span>ResearcherNexus</span>
         </div>
         <div className="flex items-center gap-2">
+          <UserProfile />
           <Button variant="outline" size="sm" asChild>
             <Link href="https://github.com/wuxixixi/ResearcherNexus" target="_blank">
               <GithubOutlined />

@@ -1,6 +1,8 @@
 // Copyright (c) 2025 SASS and/or its affiliates
 // SPDX-License-Identifier: MIT
 
+"use client";
+
 import { GithubFilled } from "@ant-design/icons";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -9,8 +11,16 @@ import { AuroraText } from "~/components/magicui/aurora-text";
 import { FlickeringGrid } from "~/components/magicui/flickering-grid";
 import { Button } from "~/components/ui/button";
 import { env } from "~/env";
+import { useAuth } from "~/lib/auth-context";
 
 export function Jumbotron() {
+  const { isAuthenticated } = useAuth();
+  
+  // Determine the target URL for the "开始使用" button
+  const getStartedUrl = isAuthenticated 
+    ? "/chat" 
+    : "/login";
+
   return (
     <section className="flex h-[95vh] w-full flex-col items-center justify-center pb-15">
       <FlickeringGrid
@@ -47,13 +57,13 @@ export function Jumbotron() {
         <div className="flex gap-6">
           <Button className="hidden text-lg md:flex md:w-42" size="lg" asChild>
             <Link
-              target={
-                env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ? "_blank" : undefined
-              }
               href={
                 env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY
                   ? "🔍https://github.com/wuxixixi/ResearcherNexus"
-                  : "/chat"
+                  : getStartedUrl
+              }
+              target={
+                env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ? "_blank" : undefined
               }
             >
               开始使用 <ChevronRight />

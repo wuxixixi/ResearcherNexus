@@ -11,6 +11,7 @@ import { ThemeProviderWrapper } from "~/components/ResearcherNexus/theme-provide
 import { env } from "~/env";
 
 import { Toaster } from "../components/ResearcherNexus/toaster";
+import { AuthProvider } from "~/lib/auth-context";
 
 export const metadata: Metadata = {
   title: "🔍 ResearcherNexus",
@@ -43,7 +44,9 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="bg-app">
-        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
+        <ThemeProviderWrapper>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProviderWrapper>
         <Toaster />
         {
           // NO USER BEHAVIOR TRACKING OR PRIVATE DATA COLLECTION BY DEFAULT
