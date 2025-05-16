@@ -1,6 +1,9 @@
 // Copyright (c) 2025 SASS and/or its affiliates
 // SPDX-License-Identifier: MIT
 
+/* 
+// Case Studies u90e8u5206u5df2u6ce8u91cau9690u85cf
+
 import { Bike, Building, Film, Github, Ham, Home, Pizza } from "lucide-react";
 import { Bot } from "lucide-react";
 
@@ -93,4 +96,10 @@ export function CaseStudySection() {
       </div>
     </section>
   );
+}
+*/
+
+// u7a7au7684u5bfcu51fau51fdu6570uff0cu4fddu8bc1u5bfcu5165u65f6u4e0du4f1au51fau9519
+export function CaseStudySection() {
+  return null;
 }

@@ -16,15 +16,15 @@ export function JoinCommunitySection() {
         anchor="join-community"
         title={
           <AuroraText colors={["#60A5FA", "#A5FA60", "#A560FA"]}>
-            Join the ResearcherNexus Community
+            加入ResearcherNexus社区
           </AuroraText>
         }
-        description="Contribute brilliant ideas to shape the future of ResearcherNexus. Collaborate, innovate, and make impacts."
+        description="为塑造ResearcherNexus的未来贡献卓越的想法。合作、创新并产生影响。"
       />
       <Button className="text-xl" size="lg" asChild>
-        <Link href="🔍https://github.com/wuxixixi/ResearcherNexus" target="_blank">
+        <Link href="https://github.com/wuxixixi/ResearcherNexus" target="_blank">
           <GithubFilled />
-          Contribute Now
+          立即贡献
         </Link>
       </Button>
     </section>

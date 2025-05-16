@@ -10,11 +10,11 @@ import { SectionHeader } from "../components/section-header";
 const features = [
   {
     Icon: Microscope,
-    name: "Dive Deeper and Reach Wider",
+    name: "深度挖掘，广泛触达",
     description:
-      "Unlock deeper insights with advanced tools. Our powerful search + crawling and Python tools gathers comprehensive data, delivering in-depth reports to enhance your study.",
+      "通过先进工具获取深度洞察。我们强大的搜索+爬虫和Python工具收集全面数据，提供深入报告以增强您的研究。",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/tools",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -22,11 +22,11 @@ const features = [
   },
   {
     Icon: User,
-    name: "Human-in-the-loop",
+    name: "人机协作模式",
     description:
-      "Refine your research plan, or adjust focus areas all through simple natural language.",
+      "通过简单的自然语言，精细调整您的研究计划或调整研究重点。",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -34,11 +34,11 @@ const features = [
   },
   {
     Icon: Bird,
-    name: "Lang Stack",
+    name: "语言技术栈",
     description:
-      "Build with confidence using the LangChain and LangGraph frameworks.",
+      "基于LangChain和LangGraph框架构建，提供可靠性和灵活性。",
     href: "https://www.langchain.com/",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -46,11 +46,11 @@ const features = [
   },
   {
     Icon: Usb,
-    name: "MCP Integrations",
+    name: "MCP集成",
     description:
-      "Supercharge your research workflow and expand your toolkit with seamless MCP integrations.",
+      "通过无缝MCP集成增强您的研究工作流程并扩展您的工具箱。",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -58,11 +58,11 @@ const features = [
   },
   {
     Icon: Podcast,
-    name: "Podcast Generation",
+    name: "播客生成",
     description:
-      "Instantly generate podcasts from reports. Perfect for on-the-go learning or sharing findings effortlessly.  ",
+      "从报告中即时生成播客。完美适合移动学习或轻松分享研究成果。",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/podcast",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -75,8 +75,8 @@ export function CoreFeatureSection() {
     <section className="relative flex w-full flex-col content-around items-center justify-center">
       <SectionHeader
         anchor="core-features"
-        title="Core Features"
-        description="Find out what makes ResearcherNexus effective."
+        title="核心功能"
+        description="探索使ResearcherNexus高效的关键特性。"
       />
       <BentoGrid className="w-3/4 lg:grid-cols-2 lg:grid-rows-3">
         {features.map((feature) => (

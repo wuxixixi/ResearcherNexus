@@ -10,7 +10,7 @@ import { UserProfile } from "~/components/ResearcherNexus/user-profile";
 
 import { Jumbotron } from "./landing/components/jumbotron";
 import { Ray } from "./landing/components/ray";
-import { CaseStudySection } from "./landing/sections/case-study-section";
+// import { CaseStudySection } from "./landing/sections/case-study-section"; // 注释掉 Case Studies 导入
 import { CoreFeatureSection } from "./landing/sections/core-features-section";
 import { JoinCommunitySection } from "./landing/sections/join-community-section";
 import { MultiAgentSection } from "./landing/sections/multi-agent-section";
@@ -21,7 +21,7 @@ export default function HomePage() {
       <Header />
       <main className="container flex flex-col items-center justify-center gap-56">
         <Jumbotron />
-        <CaseStudySection />
+        {/* <CaseStudySection /> */} {/* 注释掉 Case Studies 部分 */}
         <MultiAgentSection />
         <CoreFeatureSection />
         <JoinCommunitySection />
