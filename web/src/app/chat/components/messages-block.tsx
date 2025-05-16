@@ -59,8 +59,11 @@ export function MessagesBlock({ className }: { className?: string }) {
   // 获取用户使用情况
   useEffect(() => {
     if (isAuthenticated && user) {
-      const data = getRemainingUsage();
-      setUsageData(data);
+      const fetchUsageData = async () => {
+        const data = await getRemainingUsage();
+        setUsageData(data);
+      };
+      fetchUsageData();
     }
   }, [isAuthenticated, user, getRemainingUsage]);
 
@@ -78,7 +81,7 @@ export function MessagesBlock({ className }: { className?: string }) {
     }
     
     // 更新用户使用情况
-    const data = getRemainingUsage();
+    const data = await getRemainingUsage();
     setUsageData(data);
     return true;
   }, [isAuthenticated, incrementUsage, getRemainingUsage, router]);
