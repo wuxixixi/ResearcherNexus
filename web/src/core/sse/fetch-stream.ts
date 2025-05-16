@@ -13,6 +13,7 @@ export async function* fetchStream(
       "Content-Type": "application/json",
       "Cache-Control": "no-cache",
     },
+    credentials: "include",
     ...init,
   });
   if (response.status !== 200) {

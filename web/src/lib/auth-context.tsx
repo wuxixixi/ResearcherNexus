@@ -10,10 +10,11 @@ interface User {
   email: string;
   role: 'user' | 'admin';
   usage: {
-    date: string; // 格式YYYY-MM-DD
-    count: number;
-  }[];
-  dailyLimit: number;
+    used: number;
+    limit: number;
+    remaining: number;
+  };
+  created_at?: string; // 添加 created_at 字段，设为可选以兼容旧数据或ME接口可能不返回的情况
 }
 
 interface AuthContextType {
@@ -21,16 +22,16 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  register: (username: string, email: string, password: string) => Promise<User | null>;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  getAllUsers: () => any[];
+  getAllUsers: () => Promise<any[]>;
   updateUser: (userId: string, userData: Partial<any>) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   updateUserLimit: (userId: string, newLimit: number) => Promise<void>;
-  incrementUsage: () => Promise<{success: boolean, message?: string}>;
-  getRemainingUsage: () => {used: number, limit: number, remaining: number};
+  incrementUsage: () => Promise<{success: boolean, message?: string, usage?: any}>;
+  getRemainingUsage: () => Promise<{used: number, limit: number, remaining: number}>;
   changePassword: (userId: string, currentPassword: string, newPassword: string) => Promise<void>;
 }
 
@@ -40,19 +41,16 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-// 用户数据存储的键名
-const USERS_STORAGE_KEY = "researchernexus_users";
-const CURRENT_USER_KEY = "researchernexus_current_user";
-
-// 默认管理员用户
-const DEFAULT_ADMIN = {
-  id: `admin-${Date.now()}`,
-  username: 'admin',
-  email: 'admin@researchernexus.com',
-  password: 'admin123', // 实际应用中应该使用加密密码
-  role: 'admin' as const,
-  usage: [],
-  dailyLimit: 9999,
+// API 路径
+const API_BASE_URL = '/api';
+const AUTH_API = {
+  LOGIN: `${API_BASE_URL}/auth/login`,
+  REGISTER: `${API_BASE_URL}/auth/register`,
+  LOGOUT: `${API_BASE_URL}/auth/logout`,
+  ME: `${API_BASE_URL}/users/me`,
+  USAGE: `${API_BASE_URL}/users/usage`,
+  PASSWORD: `${API_BASE_URL}/users/password`,
+  ADMIN_USERS: `${API_BASE_URL}/admin/users`,
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -60,81 +58,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 从localStorage加载当前用户
-  useEffect(() => {
-    const storedUser = localStorage.getItem(CURRENT_USER_KEY);
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse stored user:", e);
-        localStorage.removeItem(CURRENT_USER_KEY);
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  // 确保用户数据库初始化且包含管理员账号
-  useEffect(() => {
-    // 读取现有用户
-    let users: any[] = [];
+  // 获取当前用户信息
+  const fetchCurrentUser = async () => {
+    setLoading(true); // 开始加载时设置loading
     try {
-      const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      users = storedUsers ? JSON.parse(storedUsers) : [];
-    } catch (e) {
-      console.error("Failed to parse stored users:", e);
-      users = [];
+      const response = await fetch(AUTH_API.ME);
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        setError(null); // 成功获取，清除错误
+      } else {
+        // 如果是401错误，说明用户未登录，属于正常情况，清除user状态
+        if (response.status === 401) {
+          setUser(null);
+        } else {
+          // 其他错误，尝试解析错误信息
+          try {
+            const errorData = await response.json();
+            setError(errorData.detail || '获取用户信息失败');
+          } catch (jsonError) {
+            setError('获取用户信息失败，无法解析错误响应');
+          }
+          setUser(null);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch current user:", err);
+      setError('获取用户信息时发生网络错误');
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    let needsUpdate = false;
-
-    // 确保所有用户都有必要的字段
-    users = users.map(user => {
-      let updated = false;
-      
-      if (!user.role) {
-        user.role = user.username === 'admin' ? 'admin' : 'user';
-        updated = true;
-      }
-      
-      if (!user.usage) {
-        user.usage = [];
-        updated = true;
-      }
-      
-      if (!user.dailyLimit) {
-        user.dailyLimit = user.role === 'admin' ? 9999 : 10;
-        updated = true;
-      }
-
-      if (updated) {
-        needsUpdate = true;
-      }
-      
-      return user;
-    });
-
-    // 检查管理员账户是否存在
-    const adminExists = users.some(u => u.username === 'admin' && u.role === 'admin');
-    
-    // 如果没有管理员账户，添加默认管理员
-    if (!adminExists) {
-      users.push({...DEFAULT_ADMIN});
-      needsUpdate = true;
-    } else {
-      // 确保admin账户的密码正确
-      const adminIndex = users.findIndex(u => u.username === 'admin');
-      if (adminIndex !== -1 && users[adminIndex].password !== DEFAULT_ADMIN.password) {
-        users[adminIndex].password = DEFAULT_ADMIN.password;
-        needsUpdate = true;
-      }
-    }
-
-    // 保存更新后的用户数据
-    if (needsUpdate) {
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      console.log("用户数据已更新，管理员账户已确保存在");
-    }
+  // 在组件挂载时获取当前用户信息
+  useEffect(() => {
+    fetchCurrentUser();
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -142,50 +101,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // 模拟API请求延迟
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 从localStorage获取用户数据
-      let users: any[] = [];
-      try {
-        const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
-        users = storedUsers ? JSON.parse(storedUsers) : [];
-      } catch (e) {
-        console.error("Failed to parse stored users:", e);
-        throw new Error("系统错误，请稍后再试");
-      }
-
-      // 查找匹配的用户
-      const foundUser = users.find(
-        (u: any) => u.username === username && u.password === password
-      );
-
-      if (!foundUser) {
-        throw new Error("Invalid username or password");
-      }
-
-      // 创建不包含密码的用户对象保存到状态中
-      const authenticatedUser: User = {
-        id: foundUser.id,
-        username: foundUser.username,
-        email: foundUser.email,
-        role: (foundUser.role || 'user') as 'user' | 'admin',
-        usage: foundUser.usage || [],
-        dailyLimit: foundUser.dailyLimit || 10,
-      };
-
-      // 存储到 localStorage
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authenticatedUser));
-      
-      // 设置 cookie 用于中间件认证
-      Cookies.set(CURRENT_USER_KEY, JSON.stringify(authenticatedUser), { 
-        expires: 7, // 7天后过期
-        path: '/', 
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'strict'
+      const response = await fetch(AUTH_API.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include',
       });
-      
-      setUser(authenticatedUser);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '登录失败');
+      }
+
+      const userData = await response.json();
+      setUser(userData);
     } catch (err) {
       setError((err as Error).message);
       throw err;
@@ -194,71 +125,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (username: string, email: string, password: string): Promise<User | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      // 模拟API请求延迟
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 读取现有用户
-      let users: any[] = [];
-      try {
-        const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
-        users = storedUsers ? JSON.parse(storedUsers) : [];
-      } catch (e) {
-        console.error("Failed to parse stored users:", e);
-        users = [];
-      }
-      
-      // 检查用户名是否已存在
-      if (users.some((u: any) => u.username === username)) {
-        throw new Error("Username already exists");
-      }
-
-      // 检查邮箱是否已存在
-      if (users.some((u: any) => u.email === email)) {
-        throw new Error("Email already exists");
-      }
-
-      // 创建新用户
-      const newUser = {
-        id: `user-${Date.now()}`,
-        username,
-        email: email ?? "", // 使用空字符串作为备选
-        password, // 实际应用中应该使用加密密码
-        role: 'user' as const,
-        usage: [],
-        dailyLimit: 10,
-      };
-
-      // 添加用户到数据库
-      users.push(newUser);
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-      // 创建不包含密码的用户对象保存到状态中
-      const authenticatedUser: User = {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        role: newUser.role,
-        usage: newUser.usage,
-        dailyLimit: newUser.dailyLimit,
-      };
-
-      // 存储到 localStorage
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authenticatedUser));
-      
-      // 设置 cookie 用于中间件认证
-      Cookies.set(CURRENT_USER_KEY, JSON.stringify(authenticatedUser), { 
-        expires: 7, // 7天后过期
-        path: '/', 
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'strict'
+      const response = await fetch(AUTH_API.REGISTER, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+        credentials: 'include',
       });
-      
-      setUser(authenticatedUser);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '注册失败');
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+      return userData; // 返回用户信息
     } catch (err) {
       setError((err as Error).message);
       throw err;
@@ -267,222 +155,223 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem(CURRENT_USER_KEY);
-    // 删除 cookie
-    Cookies.remove(CURRENT_USER_KEY, { path: '/' });
-    setUser(null);
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await fetch(AUTH_API.LOGOUT, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setUser(null);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to logout:", err);
+      setError("登出失败");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 获取所有用户
-  const getAllUsers = () => {
-    try {
-      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
-      // 不返回密码
-      return users.map((user: any) => ({
-        ...user,
-        password: undefined
-      }));
-    } catch (e) {
-      console.error("Failed to get users:", e);
+  const getAllUsers = async () => {
+    if (!user || user.role !== 'admin') {
+      // setError("需要管理员权限才能获取用户列表"); // 避免在非管理员场景下频繁设置错误
       return [];
     }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(AUTH_API.ADMIN_USERS, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '获取用户列表失败');
+      }
+      return await response.json();
+    } catch (err) {
+      console.error("Failed to get users:", err);
+      setError((err as Error).message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 更新用户信息
   const updateUser = async (userId: string, userData: Partial<any>) => {
+    if (!user || user.role !== 'admin') {
+      setError("需要管理员权限");
+      throw new Error("需要管理员权限");
+    }
+    setLoading(true);
+    setError(null);
     try {
-      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
-      const userIndex = users.findIndex((u: any) => u.id === userId);
-      
-      if (userIndex === -1) {
-        throw new Error("User not found");
+      const response = await fetch(`${AUTH_API.ADMIN_USERS}/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '更新用户失败');
       }
 
-      // 更新用户数据，但保持密码不变
-      const updatedUser = { ...users[userIndex], ...userData };
-      users[userIndex] = updatedUser;
-      
-      // 保存更新后的用户数据
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      
+      const updatedUserData = await response.json();
       // 如果更新的是当前用户，也更新状态
-      if (user && user.id === userId) {
-        const updatedCurrentUser = {
-          ...user,
-          ...userData,
-        } as User;
-        setUser(updatedCurrentUser);
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedCurrentUser));
-        
-        // 更新cookie
-        Cookies.set(CURRENT_USER_KEY, JSON.stringify(updatedCurrentUser), { 
-          expires: 7,
-          path: '/', 
-          secure: process.env.NODE_ENV === 'production', 
-          sameSite: 'strict'
-        });
+      if (user.id === userId) {
+         setUser(prevUser => prevUser ? { ...prevUser, ...updatedUserData } : null);
       }
-    } catch (error) {
-      console.error("Failed to update user:", error);
-      throw error;
+      return updatedUserData;
+    } catch (err) {
+      console.error("Failed to update user:", err);
+      setError((err as Error).message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 删除用户
   const deleteUser = async (userId: string) => {
+    if (!user || user.role !== 'admin') {
+      setError("需要管理员权限");
+      throw new Error("需要管理员权限");
+    }
+    setLoading(true);
+    setError(null);
     try {
-      // 检查是否是试图删除管理员账号
-      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
-      const userToDelete = users.find((u: any) => u.id === userId);
-      
-      if (!userToDelete) {
-        throw new Error("User not found");
+      const response = await fetch(`${AUTH_API.ADMIN_USERS}/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '删除用户失败');
       }
-      
-      if (userToDelete.role === 'admin') {
-        throw new Error("Cannot delete admin user");
-      }
-      
-      // 删除用户
-      const updatedUsers = users.filter((u: any) => u.id !== userId);
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-      
-      // 如果删除的是当前登录用户，则登出
-      if (user && user.id === userId) {
-        logout();
-      }
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-      throw error;
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      setError((err as Error).message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 更新用户每日使用限制
   const updateUserLimit = async (userId: string, newLimit: number) => {
-    if (newLimit < 0) {
-      throw new Error("Limit cannot be negative");
-    }
-    
-    await updateUser(userId, { dailyLimit: newLimit });
+    return updateUser(userId, { daily_limit: newLimit });
   };
 
-  // 增加用户当日使用次数
   const incrementUsage = async () => {
     if (!user) {
-      return { success: false, message: "No user logged in" };
+      return { success: false, message: "未登录" };
     }
-    
-    // 获取当前日期
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    
-    // 如果是管理员，不限制使用
-    if (user.role === 'admin') {
-      return { success: true };
-    }
-    
-    // 获取当天使用情况
-    const todayUsage = user.usage.find(u => u.date === today);
-    
-    // 如果已达到每日使用限制，则返回错误
-    if (todayUsage && todayUsage.count >= user.dailyLimit) {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(AUTH_API.USAGE, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return { 
+          success: false, 
+          message: errorData.detail || '更新使用次数失败'
+        };
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.usage) {
+        setUser(prev => prev ? {...prev, usage: result.usage} : null);
+      }
+      return result;
+    } catch (err) {
+      console.error("Failed to increment usage:", err);
+      const errorMessage = (err as Error).message || '更新使用次数失败';
+      setError(errorMessage);
       return { 
         success: false, 
-        message: `您今日的使用次数已达上限(${user.dailyLimit}次)，请明天再试或联系管理员增加配额`
+        message: errorMessage
       };
+    } finally {
+      setLoading(false);
     }
-    
-    // 更新用户使用情况
-    const updatedUsage = [...user.usage];
-    
-    if (todayUsage) {
-      // 更新现有的使用记录
-      const index = updatedUsage.findIndex(u => u.date === today);
-      updatedUsage[index] = { ...todayUsage, count: todayUsage.count + 1 };
-    } else {
-      // 添加新的使用记录
-      updatedUsage.push({ date: today, count: 1 });
-    }
-    
-    const updatedUser = { ...user, usage: updatedUsage } as User;
-    
-    // 更新状态
-    setUser(updatedUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    Cookies.set(CURRENT_USER_KEY, JSON.stringify(updatedUser), { 
-      expires: 7,
-      path: '/', 
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'strict'
-    });
-    
-    // 同时更新用户数据库
-    try {
-      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
-      const userIndex = users.findIndex((u: any) => u.id === user.id);
-      
-      if (userIndex !== -1) {
-        users[userIndex] = {
-          ...users[userIndex],
-          usage: updatedUsage
-        };
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      }
-    } catch (error) {
-      console.error("Failed to update usage in users database:", error);
-    }
-    
-    return { success: true };
   };
 
-  // 获取用户剩余使用次数
-  const getRemainingUsage = () => {
+  const getRemainingUsage = async () => {
+    // 如果用户未登录，直接返回默认值
     if (!user) {
       return { used: 0, limit: 0, remaining: 0 };
     }
-    
-    if (user.role === 'admin') {
-      return { used: 0, limit: 9999, remaining: 9999 };
+
+    // 如果user对象中已经有有效的usage信息，直接返回，避免不必要的API调用
+    // 对管理员也适用，因为管理员的配额信息也是固定的，在登录时应该已经获取
+    if (user.usage && typeof user.usage.limit === 'number') {
+        // 确保 usage 是期望的结构
+        if (user.usage.limit !== undefined && user.usage.used !== undefined && user.usage.remaining !== undefined) { 
+            return user.usage;
+        }
     }
     
-    const today = new Date().toISOString().split('T')[0];
-    const todayUsage = user.usage.find(u => u.date === today);
-    const used = todayUsage ? todayUsage.count : 0;
-    const limit = user.dailyLimit;
-    const remaining = Math.max(0, limit - used);
-    
-    return { used, limit, remaining };
+    setLoading(true);
+    // setError(null); // 调用ME接口，不应清除其他地方可能设置的错误
+    try {
+      const response = await fetch(AUTH_API.ME, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        // 对于刚注册的用户，如果ME接口返回401（用户不存在），
+        // 这可能是因为会话尚未完全建立。此时可以返回一个默认的初始配额。
+        if (response.status === 401) {
+            console.warn("getRemainingUsage: /api/users/me returned 401. This might be a new user. Returning default usage.");
+            // 假设新用户的默认限制是10次
+            const defaultUsage = { used: 0, limit: user.role === 'admin' ? 9999: 10, remaining: user.role === 'admin' ? 9999: 10 };
+            // 更新本地user状态的usage，避免下次还请求
+            setUser(prev => prev ? {...prev, usage: defaultUsage} : null);
+            return defaultUsage;
+        }
+        const errorData = await response.json();
+        console.error('获取使用情况失败 (getRemainingUsage):', errorData.detail);
+        // 如果获取失败，且user.usage无效，返回安全默认值
+        return user.usage && typeof user.usage.limit === 'number' ? user.usage : { used: 0, limit: 0, remaining: 0 };
+      }
+
+      const userData = await response.json();
+      setUser(userData); // 更新整个用户状态，包括最新的usage
+      return userData.usage || { used: 0, limit: 10, remaining: 10 }; // 确保有默认值
+    } catch (err) {
+      console.error("Failed to get usage (getRemainingUsage catch block):", err);
+      // 在捕获到错误时，如果user.usage无效，返回安全默认值
+      return user.usage && typeof user.usage.limit === 'number' ? user.usage : { used: 0, limit: 0, remaining: 0 };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 修改用户密码
   const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
     setLoading(true);
     setError(null);
-    
     try {
-      // 模拟API请求延迟
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      // 获取用户数据
-      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
-      const userIndex = users.findIndex((u: any) => u.id === userId);
-      
-      if (userIndex === -1) {
-        throw new Error("用户不存在");
+      const response = await fetch(AUTH_API.PASSWORD, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId, current_password: currentPassword, new_password: newPassword }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '修改密码失败');
       }
-      
-      // 验证当前密码
-      if (users[userIndex].password !== currentPassword) {
-        throw new Error("当前密码不正确");
-      }
-      
-      // 更新密码
-      users[userIndex].password = newPassword;
-      
-      // 保存更新后的用户数据
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      
-      // 注意：不需要更新当前用户状态或cookie，因为密码信息不存储在那里
     } catch (err) {
       setError((err as Error).message);
       throw err;

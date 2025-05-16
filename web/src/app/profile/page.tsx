@@ -16,9 +16,10 @@ export default function ProfilePage() {
   const { user, isAuthenticated, getRemainingUsage, changePassword, error, loading } = useAuth();
   const router = useRouter();
   
-  // 获取用户使用情况
-  const { used, limit, remaining } = getRemainingUsage();
-  const usagePercentage = limit > 0 ? (used / limit) * 100 : 0;
+  // 用户使用情况状态
+  const [usageInfo, setUsageInfo] = useState<{ used: number; limit: number; remaining: number }>(
+    { used: 0, limit: 0, remaining: 0 }
+  );
   
   // 密码表单状态
   const [passwordForm, setPasswordForm] = useState({
@@ -39,23 +40,31 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
+    } else if (user) {
+      // 如果用户已认证，获取其使用情况
+      const fetchUsage = async () => {
+        try {
+          const currentUsage = await getRemainingUsage();
+          setUsageInfo(currentUsage);
+        } catch (err) {
+          console.error("获取用户使用情况失败:", err);
+          // 可以选择设置一个默认的错误状态或提示
+        }
+      };
+      fetchUsage();
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, user, getRemainingUsage]);
 
   if (!user) {
     return null; // 如果没有用户数据，不显示内容
   }
 
-  // 计算账户创建时间（从用户ID中提取）
-  const createdAt = (() => {
-    // 假设ID格式是 user-{timestamp}
-    const timestampMatch = user.id.match(/\d+/);
-    if (timestampMatch) {
-      const timestamp = parseInt(timestampMatch[0]);
-      return new Date(timestamp).toLocaleDateString("zh-CN");
-    }
-    return "未知";
-  })();
+  // 格式化创建时间
+  const formattedCreatedAt = user.created_at 
+    ? new Date(user.created_at).toLocaleDateString("zh-CN", {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      })
+    : "未知";
   
   // 处理密码表单输入变化
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,7 +176,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <p>创建时间: {createdAt}</p>
+                <p>创建时间: {formattedCreatedAt}</p>
               </div>
             </div>
           </CardContent>
@@ -184,25 +193,25 @@ export default function ProfilePage() {
               <div className="flex justify-between">
                 <p className="text-sm text-muted-foreground">今日使用量</p>
                 <p className="text-sm font-medium">
-                  {used} / {limit} 条消息
+                  {usageInfo.used} / {usageInfo.limit} 条消息
                 </p>
               </div>
-              <Progress value={usagePercentage} className="h-2" />
+              <Progress value={usageInfo.limit > 0 ? (usageInfo.used / usageInfo.limit) * 100 : 0} className="h-2" />
               <p className="text-xs text-muted-foreground">
-                {remaining === 0 
+                {usageInfo.remaining === 0 
                   ? "您已达到今日使用上限，请明天再试" 
-                  : `您今日还可以发送 ${remaining} 条消息`}
+                  : `您今日还可以发送 ${usageInfo.remaining} 条消息`}
               </p>
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                <p>每日消息限制: {limit} 条</p>
+                <p>每日消息限制: {usageInfo.limit} 条</p>
               </div>
               <div className="flex items-center gap-2">
                 <BarChart className="h-4 w-4 text-muted-foreground" />
-                <p>今日已使用: {used} 条</p>
+                <p>今日已使用: {usageInfo.used} 条</p>
               </div>
             </div>
 

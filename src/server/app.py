@@ -5,12 +5,13 @@ import base64
 import json
 import logging
 import os
-from typing import List, cast
+from typing import List, Dict, Optional, cast
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
+from pydantic import BaseModel
 from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.types import Command
 
@@ -29,6 +30,16 @@ from src.server.chat_request import (
 from src.server.mcp_request import MCPServerMetadataRequest, MCPServerMetadataResponse
 from src.server.mcp_utils import load_mcp_tools
 from src.tools import VolcengineTTS
+from src.server.user_manager import (
+    authenticate_user, 
+    create_user, 
+    update_user,
+    delete_user,
+    get_all_users,
+    get_user_by_id,
+    update_user_usage,
+    get_user_remaining_usage
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +60,197 @@ app.add_middleware(
 
 graph = build_graph_with_memory()
 
+# 用户模型
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
+class UserRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    role: Optional[str] = None
+    daily_limit: Optional[int] = None
+
+class UserPassword(BaseModel):
+    current_password: str
+    new_password: str
+
+# 获取当前用户的依赖项
+async def get_current_user(researchernexus_current_user: Optional[str] = Cookie(None)):
+    if not researchernexus_current_user:
+        raise HTTPException(status_code=401, detail="未认证")
+    
+    try:
+        # 解析Cookie中的用户数据
+        user_data = json.loads(researchernexus_current_user)
+        # 从数据库中获取最新的用户数据
+        user = get_user_by_id(user_data.get('id'))
+        
+        if not user:
+            raise HTTPException(status_code=401, detail="用户不存在")
+        
+        return {k: v for k, v in user.items() if k != 'password'}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"认证失败: {str(e)}")
+
+# 检查管理员权限的依赖项
+async def check_admin(user: Dict = Depends(get_current_user)):
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="需要管理员权限")
+    return user
+
+# 用户认证路由
+@app.post("/api/auth/login")
+async def login(user_data: UserLogin, response: Response):
+    """用户登录"""
+    user = authenticate_user(user_data.username, user_data.password)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="用户名或密码错误")
+    
+    # 将用户信息设置到Cookie中
+    response.set_cookie(
+        key="researchernexus_current_user",
+        value=json.dumps(user),
+        max_age=7 * 24 * 60 * 60,  # 7天过期
+        httponly=True,
+        secure=os.getenv("APP_ENV") == "production",
+        samesite="lax"
+    )
+    
+    return user
+
+@app.post("/api/auth/register")
+async def register(user_data: UserRegister, response: Response):
+    """用户注册"""
+    try:
+        # user_manager.create_user 返回包含 id, username, email, role, daily_limit, usage_data, created_at 的字典
+        newly_created_user_info = create_user(
+            username=user_data.username,
+            email=user_data.email,
+            password=user_data.password
+        )
+
+        # 获取新用户的详细使用情况 {used, limit, remaining}
+        # get_user_remaining_usage 会使用 newly_created_user_info 中的 daily_limit
+        usage_details = get_user_remaining_usage(newly_created_user_info['id'])
+
+        # 构建返回给前端并设置到 Cookie 的用户对象
+        user_for_frontend = {
+            "id": newly_created_user_info['id'],
+            "username": newly_created_user_info['username'],
+            "email": newly_created_user_info['email'],
+            "role": newly_created_user_info['role'],
+            "created_at": newly_created_user_info['created_at'],
+            "usage": usage_details, # {used, limit, remaining}
+            # daily_limit 和 usage_data 不需要直接暴露给前端，因为 usage 对象已包含相关信息
+        }
+
+        # 将用户信息设置到Cookie中
+        response.set_cookie(
+            key="researchernexus_current_user",
+            value=json.dumps(user_for_frontend),
+            max_age=7 * 24 * 60 * 60,  # 7天过期
+            httponly=True, # 防止客户端JS访问，更安全
+            secure=os.getenv("APP_ENV") == "production", # 仅在HTTPS下发送
+            samesite="Lax" # CSRF保护
+        )
+        
+        return user_for_frontend
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/auth/logout")
+async def logout(response: Response):
+    """用户登出"""
+    response.delete_cookie(key="researchernexus_current_user")
+    return {"message": "已登出"}
+
+@app.get("/api/users/me")
+async def read_users_me(user: Dict = Depends(get_current_user)):
+    """获取当前用户信息"""
+    # 获取最新的使用情况
+    usage = get_user_remaining_usage(user['id'])
+    user['usage'] = usage
+    return user
+
+@app.post("/api/users/usage")
+async def increment_usage(user: Dict = Depends(get_current_user)):
+    """增加用户使用次数"""
+    result = update_user_usage(user['id'])
+    return result
+
+@app.post("/api/users/password")
+async def change_password(
+    password_data: UserPassword,
+    user: Dict = Depends(get_current_user)
+):
+    """修改用户密码"""
+    # 获取完整用户数据，包含密码
+    full_user = get_user_by_id(user['id'])
+    
+    if not full_user or full_user.get('password') != password_data.current_password:
+        raise HTTPException(status_code=400, detail="当前密码错误")
+    
+    try:
+        update_user(user['id'], {"password": password_data.new_password})
+        return {"message": "密码已更新"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"更新密码失败: {str(e)}")
+
+# 管理员路由
+@app.get("/api/admin/users")
+async def admin_get_users(admin: Dict = Depends(check_admin)):
+    """管理员获取所有用户"""
+    return get_all_users()
+
+@app.put("/api/admin/users/{user_id}")
+async def admin_update_user(
+    user_id: str,
+    user_data: UserUpdate,
+    admin: Dict = Depends(check_admin)
+):
+    """管理员更新用户信息"""
+    try:
+        updated_user = update_user(user_id, user_data.dict(exclude_unset=True))
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/api/admin/users/{user_id}")
+async def admin_delete_user(
+    user_id: str,
+    admin: Dict = Depends(check_admin)
+):
+    """管理员删除用户"""
+    try:
+        if admin['id'] == user_id:
+            raise HTTPException(status_code=400, detail="不能删除自己的账号")
+        
+        success = delete_user(user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        
+        return {"message": "用户已删除"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# 确保在修改chat/stream API之前调用update_user_usage
 @app.post("/api/chat/stream")
-async def chat_stream(request: ChatRequest):
+async def chat_stream(request: ChatRequest, user: Dict = Depends(get_current_user)):
+    # 增加使用次数并检查限制
+    usage_result = update_user_usage(user['id'])
+    if not usage_result['success']:
+        # 如果超出使用限制，返回错误消息
+        raise HTTPException(status_code=429, detail=usage_result.get('message'))
+    
     thread_id = request.thread_id
     if thread_id == "__default__":
         thread_id = str(uuid4())

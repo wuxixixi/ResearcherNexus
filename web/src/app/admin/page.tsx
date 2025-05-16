@@ -57,9 +57,18 @@ export default function AdminPage() {
   // 加载用户数据
   useEffect(() => {
     if (isAdmin) {
-      const allUsers = getAllUsers();
-      setUsers(allUsers);
-      setFilteredUsers(allUsers);
+      const fetchUsers = async () => {
+        try {
+          const allUsers = await getAllUsers();
+          setUsers(allUsers);
+          setFilteredUsers(allUsers);
+        } catch (error) {
+          console.error("获取用户列表失败:", error);
+          setUsers([]); // 出错时设置为空数组
+          setFilteredUsers([]);
+        }
+      };
+      fetchUsers();
     }
   }, [isAdmin, getAllUsers]);
 
@@ -107,7 +116,7 @@ export default function AdminPage() {
   // 准备编辑用户配额
   const prepareEditUser = (user: any) => {
     setSelectedUser(user);
-    setNewDailyLimit(user.dailyLimit);
+    setNewDailyLimit(user.usage?.limit ?? user.dailyLimit ?? 10);
     setIsEditDialogOpen(true);
   };
 
@@ -118,9 +127,20 @@ export default function AdminPage() {
         await updateUserLimit(selectedUser.id, newDailyLimit);
         setUsers(
           users.map((u) =>
-            u.id === selectedUser.id ? { ...u, dailyLimit: newDailyLimit } : u
+            u.id === selectedUser.id 
+            ? { 
+                ...u, 
+                dailyLimit: newDailyLimit,
+                usage: { 
+                  ...(u.usage || {}), 
+                  limit: newDailyLimit, 
+                  remaining: Math.max(0, newDailyLimit - (u.usage?.used ?? 0))
+                } 
+              }
+            : u
           )
         );
+        refreshUsers();
         setIsEditDialogOpen(false);
         setSelectedUser(null);
       } catch (error) {
@@ -130,10 +150,16 @@ export default function AdminPage() {
   };
 
   // 刷新用户列表
-  const refreshUsers = () => {
-    const allUsers = getAllUsers();
-    setUsers(allUsers);
-    setFilteredUsers(allUsers);
+  const refreshUsers = async () => {
+    if (isAdmin) {
+      try {
+        const allUsers = await getAllUsers();
+        setUsers(allUsers);
+        setFilteredUsers(allUsers);
+      } catch (error) {
+        console.error("刷新用户列表失败:", error);
+      }
+    }
   };
 
   if (!isAdmin) {
@@ -202,10 +228,9 @@ export default function AdminPage() {
           <TableBody>
             {currentItems.length > 0 ? (
               currentItems.map((user) => {
-                // 计算今日使用情况
-                const today = new Date().toISOString().split('T')[0];
-                const todayUsage = user.usage?.find((u: any) => u.date === today);
-                const usedToday = todayUsage ? todayUsage.count : 0;
+                // 使用后端直接提供的 usage 对象中的信息
+                const usedToday = user.usage?.used ?? 0;
+                const dailyLimit = user.usage?.limit ?? user.dailyLimit ?? 0; // 优先用 usage.limit，其次用顶层 dailyLimit
 
                 return (
                   <TableRow key={user.id}>
@@ -219,10 +244,10 @@ export default function AdminPage() {
                         {user.role === "admin" ? "管理员" : "普通用户"}
                       </span>
                     </TableCell>
-                    <TableCell>{user.dailyLimit}</TableCell>
+                    <TableCell>{dailyLimit}</TableCell>
                     <TableCell>
                       {usedToday}
-                      {usedToday >= user.dailyLimit && user.role !== "admin" && (
+                      {usedToday >= dailyLimit && user.role !== "admin" && (
                         <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
                           已达上限
                         </span>

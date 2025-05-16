@@ -21,3 +21,7 @@ conf.yaml
 .idea/
 .langgraph_api/
 
+# 用户数据文件 (不提交到GitHub)
+/data/users.csv
+/data/
+
