@@ -127,7 +127,7 @@ export function ResearchBlock({
                 Report
               </TabsTrigger>
               <TabsTrigger className="px-8" value="activities">
-                Activities
+                研究区
               </TabsTrigger>
             </TabsList>
           </div>

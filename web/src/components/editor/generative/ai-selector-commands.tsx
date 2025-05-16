@@ -14,7 +14,7 @@ import { CommandGroup, CommandItem, CommandSeparator } from "../../ui/command";
 const options = [
   {
     value: "improve",
-    label: "Improve writing",
+    label: "提高写作水平",
     icon: RefreshCcwDot,
   },
   // TODO: add this back in
@@ -25,12 +25,12 @@ const options = [
   // },
   {
     value: "shorter",
-    label: "Make shorter",
+    label: "写短些",
     icon: ArrowDownWideNarrow,
   },
   {
     value: "longer",
-    label: "Make longer",
+    label: "写长些",
     icon: WrapText,
   },
 ];
@@ -44,7 +44,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
   if (!editor) return null;
   return (
     <>
-      <CommandGroup heading="Edit or review selection">
+      <CommandGroup heading="编辑 或 审查">
         {options.map((option) => (
           <CommandItem
             onSelect={(value) => {
@@ -75,7 +75,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           className="gap-2 px-4"
         >
           <StepForward className="h-4 w-4 text-purple-500" />
-          Continue writing
+          续写
         </CommandItem>
       </CommandGroup>
     </>
