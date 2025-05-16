@@ -22,9 +22,22 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   
-  // If user is on login page but already authenticated, redirect to chat
+  // 如果用户在登录页但已经认证，根据角色重定向
   if (path === "/login" && authToken) {
-    return NextResponse.redirect(new URL("/chat", request.url));
+    try {
+      // 解析用户信息
+      const userData = JSON.parse(authToken);
+      
+      // 根据用户角色决定重定向目标
+      if (userData.role === 'admin') {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      } else {
+        return NextResponse.redirect(new URL("/chat", request.url));
+      }
+    } catch (error) {
+      // 如果解析失败，仍然重定向到聊天页（默认行为）
+      return NextResponse.redirect(new URL("/chat", request.url));
+    }
   }
   
   // 保护管理页面，只允许管理员访问

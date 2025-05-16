@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Edit, Plus, Search, Filter, XCircle, Save, Ban } from "lucide-react";
+import { Trash2, Edit, Plus, Search, Filter, XCircle, Save, Ban, Home } from "lucide-react";
+import Link from "next/link";
 
 import { useAuth } from "~/lib/auth-context";
 import { Button } from "~/components/ui/button";
@@ -141,9 +142,17 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">用户管理后台</h1>
-        <p className="text-muted-foreground">管理所有注册用户和使用限制</p>
+      <header className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">用户管理后台</h1>
+          <p className="text-muted-foreground">管理所有注册用户和使用限制</p>
+        </div>
+        <Link href="/">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            返回主页
+          </Button>
+        </Link>
       </header>
 
       <div className="flex justify-between mb-6">

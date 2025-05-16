@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, UserCircle, Lock, Mail } from "lucide-react";
@@ -14,9 +14,20 @@ import { FlickeringGrid } from "~/components/magicui/flickering-grid";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, register, error, loading } = useAuth();
+  const { login, register, error, loading, isAdmin, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+
+  // 登录后自动导航到相应页面
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (isAdmin) {
+        router.push("/admin"); // 管理员跳转到后台
+      } else {
+        router.push("/chat"); // 普通用户跳转到聊天页面
+      }
+    }
+  }, [isAuthenticated, isAdmin, router]);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -54,7 +65,7 @@ export default function LoginPage() {
     
     try {
       await login(loginForm.username, loginForm.password);
-      router.push("/chat");
+      // 登录成功后，由useEffect负责导航
     } catch (err) {
       // Error is handled by the auth context
     }
@@ -80,7 +91,7 @@ export default function LoginPage() {
     
     try {
       await register(registerForm.username, registerForm.email, registerForm.password);
-      router.push("/chat");
+      // 注册成功后，由useEffect负责导航
     } catch (err) {
       // Error is handled by the auth context
     }

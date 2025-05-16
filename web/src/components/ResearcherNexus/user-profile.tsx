@@ -45,9 +45,11 @@ export const UserProfile: React.FC = () => {
         <DropdownMenuLabel>我的账户</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>个人信息</span>
+          <DropdownMenuItem asChild>
+            <Link href="/profile" className="w-full flex items-center">
+              <User className="mr-2 h-4 w-4" />
+              <span>个人信息</span>
+            </Link>
           </DropdownMenuItem>
           
           {isAdmin && (
