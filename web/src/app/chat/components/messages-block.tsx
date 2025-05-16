@@ -264,7 +264,7 @@ export function MessagesBlock({ className }: { className?: string }) {
               使用次数已达上限
             </DialogTitle>
             <DialogDescription>
-              您今天的使用次数已达到{usageData.limit}次限制。请明天再试或联系管理员增加配额。
+              您今天的使用次数已达到{usageData.limit}次限制。请明天再试或联系管理员（wuxi@sass.org.cn）增加配额。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
