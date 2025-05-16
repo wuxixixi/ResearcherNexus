@@ -31,6 +31,7 @@ interface AuthContextType {
   updateUserLimit: (userId: string, newLimit: number) => Promise<void>;
   incrementUsage: () => Promise<{success: boolean, message?: string}>;
   getRemainingUsage: () => {used: number, limit: number, remaining: number};
+  changePassword: (userId: string, currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -453,6 +454,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { used, limit, remaining };
   };
 
+  // 修改用户密码
+  const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // 模拟API请求延迟
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      // 获取用户数据
+      const users = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]");
+      const userIndex = users.findIndex((u: any) => u.id === userId);
+      
+      if (userIndex === -1) {
+        throw new Error("用户不存在");
+      }
+      
+      // 验证当前密码
+      if (users[userIndex].password !== currentPassword) {
+        throw new Error("当前密码不正确");
+      }
+      
+      // 更新密码
+      users[userIndex].password = newPassword;
+      
+      // 保存更新后的用户数据
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      
+      // 注意：不需要更新当前用户状态或cookie，因为密码信息不存储在那里
+    } catch (err) {
+      setError((err as Error).message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -470,6 +508,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updateUserLimit,
         incrementUsage,
         getRemainingUsage,
+        changePassword,
       }}
     >
       {children}

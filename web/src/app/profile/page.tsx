@@ -2,21 +2,38 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Home, User, Mail, KeyRound, Calendar, BarChart, MessageSquare } from "lucide-react";
+import { Home, User, Mail, KeyRound, Calendar, BarChart, MessageSquare, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 import { useAuth } from "~/lib/auth-context";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
+import { Input } from "~/components/ui/input";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, getRemainingUsage } = useAuth();
+  const { user, isAuthenticated, getRemainingUsage, changePassword, error, loading } = useAuth();
   const router = useRouter();
   
   // 获取用户使用情况
   const { used, limit, remaining } = getRemainingUsage();
   const usagePercentage = limit > 0 ? (used / limit) * 100 : 0;
+  
+  // 密码表单状态
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // 检查用户是否已登录
   useEffect(() => {
@@ -39,6 +56,70 @@ export default function ProfilePage() {
     }
     return "未知";
   })();
+  
+  // 处理密码表单输入变化
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordForm((prev) => ({ ...prev, [name]: value }));
+    
+    // 清除之前的错误和成功消息
+    setFormError("");
+    setFormSuccess("");
+  };
+  
+  // 处理密码修改提交
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 表单验证
+    if (!passwordForm.currentPassword) {
+      setFormError("请输入当前密码");
+      return;
+    }
+    
+    if (!passwordForm.newPassword) {
+      setFormError("请输入新密码");
+      return;
+    }
+    
+    if (passwordForm.newPassword.length < 6) {
+      setFormError("新密码长度不能少于6个字符");
+      return;
+    }
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setFormError("两次输入的新密码不一致");
+      return;
+    }
+    
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setFormError("新密码不能与当前密码相同");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await changePassword(
+        user.id,
+        passwordForm.currentPassword,
+        passwordForm.newPassword
+      );
+      
+      // 重置表单
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      
+      setFormSuccess("密码修改成功！");
+    } catch (err) {
+      setFormError(error || "密码修改失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -130,6 +211,128 @@ export default function ProfilePage() {
                 <p className="text-sm">作为管理员，您没有使用限制。</p>
               </div>
             )}
+          </CardContent>
+        </Card>
+        
+        {/* 修改密码卡片 */}
+        <Card className="md:col-span-2 mt-6">
+          <CardHeader>
+            <CardTitle>修改密码</CardTitle>
+            <CardDescription>更新您的账户密码</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              {/* 当前密码 */}
+              <div className="space-y-2">
+                <label htmlFor="currentPassword" className="text-sm font-medium">
+                  当前密码
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type={showPasswords.current ? "text" : "password"}
+                    value={passwordForm.currentPassword}
+                    onChange={handlePasswordChange}
+                    className="pl-9 pr-9"
+                    placeholder="请输入当前密码"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPasswords.current ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {/* 新密码 */}
+              <div className="space-y-2">
+                <label htmlFor="newPassword" className="text-sm font-medium">
+                  新密码
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="newPassword"
+                    name="newPassword"
+                    type={showPasswords.new ? "text" : "password"}
+                    value={passwordForm.newPassword}
+                    onChange={handlePasswordChange}
+                    className="pl-9 pr-9"
+                    placeholder="请输入新密码"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPasswords.new ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {/* 确认新密码 */}
+              <div className="space-y-2">
+                <label htmlFor="confirmPassword" className="text-sm font-medium">
+                  确认新密码
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPasswords.confirm ? "text" : "password"}
+                    value={passwordForm.confirmPassword}
+                    onChange={handlePasswordChange}
+                    className="pl-9 pr-9"
+                    placeholder="请再次输入新密码"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPasswords.confirm ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {/* 错误消息 */}
+              {formError && (
+                <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{formError}</AlertDescription>
+                </Alert>
+              )}
+              
+              {/* 成功消息 */}
+              {formSuccess && (
+                <Alert className="bg-green-50 text-green-600 border-green-200">
+                  <AlertDescription>{formSuccess}</AlertDescription>
+                </Alert>
+              )}
+              
+              <CardFooter className="px-0 pt-2">
+                <Button type="submit" disabled={isSubmitting} className="w-full">
+                  {isSubmitting ? "提交中..." : "修改密码"}
+                </Button>
+              </CardFooter>
+            </form>
           </CardContent>
         </Card>
       </div>
