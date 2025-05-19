@@ -124,14 +124,14 @@ export function AddMCPServerDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Add Servers</Button>
+        <Button size="sm">添加服务</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[560px]">
         <DialogHeader>
           <DialogTitle>添加新的MCP服务</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-        ResearcherNexus使用标准的JSON MCP配置来创建一个新服务器。
+          ResearcherNexus使用标准的JSON MCP配置来创建一个新服务器。
           <br />
           将您的配置粘贴到下方，然后点击“添加”以添加新服务器。
         </DialogDescription>
