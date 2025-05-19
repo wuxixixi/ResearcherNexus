@@ -40,7 +40,7 @@ function Footer() {
       </div>
       <div className="text-muted-foreground container mb-8 flex flex-col items-center justify-center text-xs">
         <p>Licensed under MIT License</p>
-        <p>&copy; {year} DeerFlow</p>
+        <p>&copy; {year} ResearcherNexus</p>
       </div>
     </footer>
   );

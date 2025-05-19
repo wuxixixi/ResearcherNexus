@@ -76,7 +76,7 @@ export function CoreFeatureSection() {
       <SectionHeader
         anchor="core-features"
         title="Core Features"
-        description="Find out what makes DeerFlow effective."
+        description="Find out what makes ResearcherNexus effective."
       />
       <BentoGrid className="w-3/4 lg:grid-cols-2 lg:grid-rows-3">
         {features.map((feature) => (

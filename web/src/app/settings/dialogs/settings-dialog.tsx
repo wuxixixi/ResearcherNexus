@@ -101,9 +101,9 @@ export function SettingsDialog() {
       </Tooltip>
       <DialogContent className="sm:max-w-[850px]">
         <DialogHeader>
-          <DialogTitle>DeerFlow Settings</DialogTitle>
+          <DialogTitle>ResearcherNexus Settings</DialogTitle>
           <DialogDescription>
-            Manage your DeerFlow settings here.
+            Manage your ResearcherNexus settings here.
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTabId}>

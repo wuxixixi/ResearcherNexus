@@ -7,9 +7,9 @@
 
 > 源于开源，回馈开源。
 
-**DeerFlow**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）是一个社区驱动的深度研究框架，它建立在开源社区的杰出工作基础之上。我们的目标是将语言模型与专业工具（如网络搜索、爬虫和 Python 代码执行）相结合，同时回馈使这一切成为可能的社区。
+**ResearcherNexus**（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）是一个社区驱动的深度研究框架，它建立在开源社区的杰出工作基础之上。我们的目标是将语言模型与专业工具（如网络搜索、爬虫和 Python 代码执行）相结合，同时回馈使这一切成为可能的社区。
 
-请访问[DeerFlow 的官方网站](https://deerflow.tech/)了解更多详情。
+请访问[ResearcherNexus 的官方网站](https://ResearcherNexus.tech/)了解更多详情。
 
 ## 演示
 
@@ -17,7 +17,7 @@
 
 https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
 
-在此演示中，我们展示了如何使用 DeerFlow：
+在此演示中，我们展示了如何使用 ResearcherNexus：
 
 - 无缝集成 MCP 服务
 - 进行深度研究过程并生成包含图像的综合报告
@@ -25,11 +25,11 @@ https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
 
 ### 回放示例
 
-- [埃菲尔铁塔与最高建筑相比有多高？](https://deerflow.tech/chat?replay=eiffel-tower-vs-tallest-building)
-- [GitHub 上最热门的仓库有哪些？](https://deerflow.tech/chat?replay=github-top-trending-repo)
-- [撰写关于南京传统美食的文章](https://deerflow.tech/chat?replay=nanjing-traditional-dishes)
-- [如何装饰租赁公寓？](https://deerflow.tech/chat?replay=rental-apartment-decoration)
-- [访问我们的官方网站探索更多回放示例。](https://deerflow.tech/#case-studies)
+- [埃菲尔铁塔与最高建筑相比有多高？](https://ResearcherNexus.tech/chat?replay=eiffel-tower-vs-tallest-building)
+- [GitHub 上最热门的仓库有哪些？](https://ResearcherNexus.tech/chat?replay=github-top-trending-repo)
+- [撰写关于南京传统美食的文章](https://ResearcherNexus.tech/chat?replay=nanjing-traditional-dishes)
+- [如何装饰租赁公寓？](https://ResearcherNexus.tech/chat?replay=rental-apartment-decoration)
+- [访问我们的官方网站探索更多回放示例。](https://ResearcherNexus.tech/#case-studies)
 
 ---
 
@@ -48,7 +48,7 @@ https://github.com/user-attachments/assets/f3786598-1f2a-4d07-919e-8b99dfa1de3e
 
 ## 快速开始
 
-DeerFlow 使用 Python 开发，并配有用 Node.js 编写的 Web UI。为确保顺利的设置过程，我们推荐使用以下工具：
+ResearcherNexus 使用 Python 开发，并配有用 Node.js 编写的 Web UI。为确保顺利的设置过程，我们推荐使用以下工具：
 
 ### 推荐工具
 
@@ -73,7 +73,7 @@ DeerFlow 使用 Python 开发，并配有用 Node.js 编写的 Web UI。为确�
 ```bash
 # 克隆仓库
 git clone https://github.com/wuxixixi/ResearcherNexus.git
-cd deer-flow
+cd ResearcherNexus
 
 # 安装依赖，uv将负责Python解释器和虚拟环境的创建，并安装所需的包
 uv sync
@@ -98,7 +98,7 @@ brew install marp-cli
 可选，通过[pnpm](https://pnpm.io/installation)安装 Web UI 依赖：
 
 ```bash
-cd deer-flow/web
+cd ResearcherNexus/web
 pnpm install
 ```
 
@@ -140,7 +140,7 @@ bootstrap.bat -d
 
 ## 支持的搜索引擎
 
-DeerFlow 支持多种搜索引擎，可以在`.env`文件中通过`SEARCH_API`变量进行配置：
+ResearcherNexus 支持多种搜索引擎，可以在`.env`文件中通过`SEARCH_API`变量进行配置：
 
 - **Tavily**（默认）：专为 AI 应用设计的专业搜索 API
 
@@ -210,11 +210,11 @@ SEARCH_API=tavily
 
 ## 架构
 
-DeerFlow 实现了一个模块化的多智能体系统架构，专为自动化研究和代码分析而设计。该系统基于 LangGraph 构建，实现了灵活的基于状态的工作流，其中组件通过定义良好的消息传递系统进行通信。
+ResearcherNexus 实现了一个模块化的多智能体系统架构，专为自动化研究和代码分析而设计。该系统基于 LangGraph 构建，实现了灵活的基于状态的工作流，其中组件通过定义良好的消息传递系统进行通信。
 
 ![架构图](./assets/architecture.png)
 
-> 在[deerflow.tech](https://deerflow.tech/#multi-agent-architecture)上查看实时演示
+> 在[ResearcherNexus.tech](https://ResearcherNexus.tech/#multi-agent-architecture)上查看实时演示
 
 系统采用了精简的工作流程，包含以下组件：
 
@@ -270,11 +270,11 @@ make format
 
 ### 使用 LangGraph Studio 进行调试
 
-DeerFlow 使用 LangGraph 作为其工作流架构。您可以使用 LangGraph Studio 实时调试和可视化工作流。
+ResearcherNexus 使用 LangGraph 作为其工作流架构。您可以使用 LangGraph Studio 实时调试和可视化工作流。
 
 #### 本地运行 LangGraph Studio
 
-DeerFlow 包含一个`langgraph.json`配置文件，该文件定义了 LangGraph Studio 的图结构和依赖关系。该文件指向项目中定义的工作流图，并自动从`.env`文件加载环境变量。
+ResearcherNexus 包含一个`langgraph.json`配置文件，该文件定义了 LangGraph Studio 的图结构和依赖关系。该文件指向项目中定义的工作流图，并自动从`.env`文件加载环境变量。
 
 ##### Mac
 
@@ -324,7 +324,7 @@ langgraph dev
 
 ### 启用 LangSmith 追踪
 
-DeerFlow 支持 LangSmith 追踪功能，帮助您调试和监控工作流。要启用 LangSmith 追踪：
+ResearcherNexus 支持 LangSmith 追踪功能，帮助您调试和监控工作流。要启用 LangSmith 追踪：
 
 1. 确保您的 `.env` 文件中有以下配置（参见 `.env.example`）：
    ```bash
@@ -350,17 +350,17 @@ DeerFlow 支持 LangSmith 追踪功能，帮助您调试和监控工作流。要
 其次，构建您自己的 Web 服务器 Docker 镜像：
 
 ```bash
-docker build -t deer-flow-api .
+docker build -t ResearcherNexus-api .
 ```
 
 最后，启动运行 Web 服务器的 Docker 容器：
 
 ```bash
-# 将deer-flow-api-app替换为您首选的容器名称
-docker run -d -t -p 8000:8000 --env-file .env --name deer-flow-api-app deer-flow-api
+# 将ResearcherNexus-api-app替换为您首选的容器名称
+docker run -d -t -p 8000:8000 --env-file .env --name ResearcherNexus-api-app ResearcherNexus-api
 
 # 停止服务器
-docker stop deer-flow-api-app
+docker stop ResearcherNexus-api-app
 ```
 
 ### Docker Compose
@@ -377,7 +377,7 @@ docker compose up
 
 ## 文本转语音集成
 
-DeerFlow 现在包含一个文本转语音(TTS)功能，允许您将研究报告转换为语音。此功能使用火山引擎 TTS API 生成高质量的文本音频。速度、音量和音调等特性也可以自定义。
+ResearcherNexus 现在包含一个文本转语音(TTS)功能，允许您将研究报告转换为语音。此功能使用火山引擎 TTS API 生成高质量的文本音频。速度、音量和音调等特性也可以自定义。
 
 ### 使用 TTS API
 
@@ -398,7 +398,7 @@ curl --location 'http://localhost:8000/api/tts' \
 
 ## 示例
 
-以下示例展示了 DeerFlow 的功能：
+以下示例展示了 ResearcherNexus 的功能：
 
 ### 研究报告
 
@@ -484,7 +484,7 @@ uv run main.py --help
 
 ### 人在环中
 
-DeerFlow 包含一个人在环中机制，允许您在执行研究计划前审查、编辑和批准：
+ResearcherNexus 包含一个人在环中机制，允许您在执行研究计划前审查、编辑和批准：
 
 1. **计划审查**：启用人在环中时，系统将在执行前向您展示生成的研究计划
 
@@ -528,24 +528,24 @@ DeerFlow 包含一个人在环中机制，允许您在执行研究计划前审�
 
 ## 致谢
 
-DeerFlow 建立在开源社区的杰出工作基础之上。我们深深感谢所有使 DeerFlow 成为可能的项目和贡献者。诚然，我们站在巨人的肩膀上。
+ResearcherNexus 建立在开源社区的杰出工作基础之上。我们深深感谢所有使 ResearcherNexus 成为可能的项目和贡献者。诚然，我们站在巨人的肩膀上。
 
 我们要向以下项目表达诚挚的感谢，感谢他们的宝贵贡献：
 
 - **[LangChain](https://github.com/langchain-ai/langchain)**：他们卓越的框架为我们的 LLM 交互和链提供动力，实现了无缝集成和功能。
-- **[LangGraph](https://github.com/langchain-ai/langgraph)**：他们在多智能体编排方面的创新方法对于实现 DeerFlow 复杂工作流至关重要。
+- **[LangGraph](https://github.com/langchain-ai/langgraph)**：他们在多智能体编排方面的创新方法对于实现 ResearcherNexus 复杂工作流至关重要。
 
 这些项目展示了开源协作的变革力量，我们很自豪能够在他们的基础上构建。
 
 ### 核心贡献者
 
-衷心感谢`DeerFlow`的核心作者，他们的愿景、热情和奉献使这个项目得以实现：
+衷心感谢`ResearcherNexus`的核心作者，他们的愿景、热情和奉献使这个项目得以实现：
 
 - **[Daniel Walnut](https://github.com/hetaoBackend/)**
 - **[Henry Li](https://github.com/magiccube/)**
 
-您坚定不移的承诺和专业知识是 DeerFlow 成功的驱动力。我们很荣幸有您引领这一旅程。
+您坚定不移的承诺和专业知识是 ResearcherNexus 成功的驱动力。我们很荣幸有您引领这一旅程。
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=bytedance/deer-flow&type=Date)](https://star-history.com/#bytedance/deer-flow&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=bytedance/ResearcherNexus&type=Date)](https://star-history.com/#bytedance/ResearcherNexus&Date)

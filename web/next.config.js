@@ -9,7 +9,7 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 
-// DeerFlow leverages **Turbopack** during development for faster builds and a smoother developer experience.
+// ResearcherNexus leverages **Turbopack** during development for faster builds and a smoother developer experience.
 // However, in production, **Webpack** is used instead.
 //
 // This decision is based on the current recommendation to avoid using Turbopack for critical projects, as it

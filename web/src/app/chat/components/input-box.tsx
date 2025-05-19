@@ -153,7 +153,7 @@ export function InputBox({
                   Investigation Mode: {backgroundInvestigation ? "On" : "Off"}
                 </h3>
                 <p>
-                  When enabled, DeerFlow will perform a quick search before
+                  When enabled, ResearcherNexus will perform a quick search before
                   planning. This is useful for researches related to ongoing
                   events and news.
                 </p>

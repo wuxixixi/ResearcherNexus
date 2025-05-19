@@ -13,7 +13,7 @@ import { env } from "~/env";
 import { Toaster } from "../components/researchernexus/toaster";
 
 export const metadata: Metadata = {
-  title: "🦌 DeerFlow",
+  title: "🔍 ResearcherNexus",
   description:
     "Deep Exploration and Efficient Research, an AI tool that combines language models with specialized tools for research tasks.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
