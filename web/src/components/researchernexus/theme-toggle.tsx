@@ -22,7 +22,7 @@ export function ThemeToggle() {
 
   return (
     <DropdownMenu>
-      <Tooltip title="Change theme">
+      <Tooltip title="改变页面主题">
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
             <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

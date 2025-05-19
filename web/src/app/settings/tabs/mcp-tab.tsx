@@ -74,16 +74,27 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
           <AddMCPServerDialog onAdd={handleAddServers} />
         </div>
         <div className="text-muted-foreground markdown text-sm">
-          The Model Context Protocol boosts ResearcherNexus by integrating external
-          tools for tasks like private domain searches, web browsing, food
-          ordering, and more. Click here to
+          模型上下文协议（MCP）通过集成外部工具来增强ResearcherNexus，这些工具可用于诸如深度思考、私有数据检索、网页浏览、点餐等任务，数以万计。
+          <p></p>
+          
+          点击这里：
           <a
             className="ml-1"
             target="_blank"
             href="https://modelcontextprotocol.io/"
           >
-            learn more about MCP.
+          学习MCP。
           </a>
+          <p></p>
+          点击这里：
+          <a
+            className="ml-1"
+            target="_blank"
+            href="https://smithery.ai/"
+          >
+          获取MCP资源。
+          </a>
+
         </div>
       </header>
       <main>

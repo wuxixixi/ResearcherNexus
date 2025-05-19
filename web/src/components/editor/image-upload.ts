@@ -34,7 +34,7 @@ const onUpload = (file: File) => {
           );
           // Unknown error
         } else {
-          throw new Error("Error uploading image. Please try again.");
+          throw new Error("上传图片出错。请重试。");
         }
       }),
       {

@@ -132,7 +132,7 @@ export function InputBox({
           placeholder={
             feedback
               ? `Describe how you ${feedback.option.text.toLocaleLowerCase()}?`
-              : "What can I do for you?"
+              : "将您的疑惑或要求写在这里。"
           }
           value={message}
           onCompositionStart={() => setImeStatus("active")}
@@ -171,7 +171,7 @@ export function InputBox({
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
             >
-              <Detective /> Investigation
+              <Detective /> 计划前调研
             </Button>
           </Tooltip>
         </div>

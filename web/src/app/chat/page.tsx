@@ -30,7 +30,7 @@ export default function HomePage() {
       <header className="fixed top-0 left-0 flex h-12 w-full items-center justify-between px-4">
         <Logo />
         <div className="flex items-center">
-          <Tooltip title="Star ResearcherNexus on GitHub">
+          <Tooltip title="在GitHub给ResearcherNexus点赞">
             <Button variant="ghost" size="icon" asChild>
               <Link
                 href="https://github.com/wuxixixi/ResearcherNexus"

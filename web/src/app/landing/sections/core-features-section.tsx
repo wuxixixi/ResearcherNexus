@@ -10,9 +10,9 @@ import { SectionHeader } from "../components/section-header";
 const features = [
   {
     Icon: Microscope,
-    name: "Dive Deeper and Reach Wider",
+    name: "深入探索与广泛触达",
     description:
-      "Unlock deeper insights with advanced tools. Our powerful search + crawling and Python tools gathers comprehensive data, delivering in-depth reports to enhance your study.",
+      "利用先进工具解锁更深层次的见解。我们强大的搜索+抓取和Python工具可收集全面数据，提供深度报告以增强您的研究",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/tools",
     cta: "Learn more",
     background: (
@@ -22,9 +22,9 @@ const features = [
   },
   {
     Icon: User,
-    name: "Human-in-the-loop",
+    name: "人工参与",
     description:
-      "Refine your research plan, or adjust focus areas all through simple natural language.",
+      "通过简单的自然语言优化您的研究计划，或调整重点领域",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
     cta: "Learn more",
     background: (
@@ -36,7 +36,7 @@ const features = [
     Icon: Bird,
     name: "Lang Stack",
     description:
-      "Build with confidence using the LangChain and LangGraph frameworks.",
+      "使用 LangChain 和 LangGraph 框架自信地构建",
     href: "https://www.langchain.com/",
     cta: "Learn more",
     background: (
@@ -46,9 +46,9 @@ const features = [
   },
   {
     Icon: Usb,
-    name: "MCP Integrations",
+    name: "MCP 集成",
     description:
-      "Supercharge your research workflow and expand your toolkit with seamless MCP integrations.",
+      "通过无缝的 MCP 集成，增强您的研究工作流程并扩展您的工具包",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
     cta: "Learn more",
     background: (
@@ -58,9 +58,9 @@ const features = [
   },
   {
     Icon: Podcast,
-    name: "Podcast Generation",
+    name: "播客生成",
     description:
-      "Instantly generate podcasts from reports. Perfect for on-the-go learning or sharing findings effortlessly.  ",
+      "即时从报告生成播客 非常适合随时随地学习或轻松分享研究成果",
     href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/podcast",
     cta: "Learn more",
     background: (
@@ -75,8 +75,8 @@ export function CoreFeatureSection() {
     <section className="relative flex w-full flex-col content-around items-center justify-center">
       <SectionHeader
         anchor="core-features"
-        title="Core Features"
-        description="Find out what makes ResearcherNexus effective."
+        title="核心功能"
+        description="让 ResearcherNexus 高效"
       />
       <BentoGrid className="w-3/4 lg:grid-cols-2 lg:grid-rows-3">
         {features.map((feature) => (

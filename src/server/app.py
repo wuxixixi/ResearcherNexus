@@ -120,8 +120,8 @@ async def _astream_workflow_generator(
                         "content": event_data["__interrupt__"][0].value,
                         "finish_reason": "interrupt",
                         "options": [
-                            {"text": "Edit plan", "value": "edit_plan"},
-                            {"text": "Start research", "value": "accepted"},
+                            {"text": "调整计划", "value": "edit_plan"},
+                            {"text": "开始研究", "value": "accepted"},
                         ],
                     },
                 )

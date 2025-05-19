@@ -26,7 +26,7 @@ ResearcherNexus 自豪地开源，并根据MIT 许可证分发。
 - **[LangChain](https://github.com/langchain-ai/langchain)**: 一个强大的框架，为我们的大语言模型交互和链条提供支持。
 - **[LangGraph](https://github.com/langchain-ai/langgraph)**: 实现复杂的多智能体协同编排。
 - **[Next.js](https://nextjs.org/)**: 一个用于构建 Web 应用程序的前沿框架。
-- **[RearcherNexus](https://RearcherNexus.tech/)**: 一个字节跳动公司开发的开源Agent框架。
+- **[DeearFlow](https://deerflow.tech/)**: 一个字节跳动公司开发的开源Agent框架。
 
 ### 用户界面库
 - **[Shadcn](https://ui.shadcn.com/)**: 为我们的用户界面提供支持的简约组件。

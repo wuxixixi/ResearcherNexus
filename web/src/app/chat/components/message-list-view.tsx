@@ -424,7 +424,7 @@ function PodcastCard({
               </RainbowText>
             ) : (
               <div className="text-red-500">
-                Error when generating podcast. Please try again.
+                生成播客时出错。请重试。
               </div>
             )}
           </div>

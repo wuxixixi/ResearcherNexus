@@ -101,9 +101,9 @@ export function SettingsDialog() {
       </Tooltip>
       <DialogContent className="sm:max-w-[850px]">
         <DialogHeader>
-          <DialogTitle>ResearcherNexus Settings</DialogTitle>
+          <DialogTitle>ResearcherNexus 设置</DialogTitle>
           <DialogDescription>
-            Manage your ResearcherNexus settings here.
+            在此添加设置参数、添加工具：
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTabId}>
@@ -157,10 +157,10 @@ export function SettingsDialog() {
         </Tabs>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            取消
           </Button>
           <Button className="w-24" type="submit" onClick={handleSave}>
-            Save
+            保存
           </Button>
         </DialogFooter>
       </DialogContent>

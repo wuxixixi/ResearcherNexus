@@ -128,12 +128,12 @@ export function AddMCPServerDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[560px]">
         <DialogHeader>
-          <DialogTitle>Add New MCP Servers</DialogTitle>
+          <DialogTitle>添加新的MCP服务</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          ResearcherNexus uses the standard JSON MCP config to create a new server.
+        ResearcherNexus使用标准的JSON MCP配置来创建一个新服务器。
           <br />
-          Paste your config below and click &quot;Add&quot; to add new servers.
+          将您的配置粘贴到下方，然后点击“添加”以添加新服务器。
         </DialogDescription>
 
         <main>
@@ -154,7 +154,7 @@ export function AddMCPServerDialog({
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                取消
               </Button>
               <Button
                 className="w-24"
@@ -163,7 +163,7 @@ export function AddMCPServerDialog({
                 onClick={handleAdd}
               >
                 {processing && <Loader2 className="animate-spin" />}
-                Add
+                添加
               </Button>
             </div>
           </div>
