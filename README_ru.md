@@ -75,7 +75,7 @@ DeerFlow разработан на Python и поставляется с веб-
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/bytedance/deer-flow.git
+git clone https://github.com/wuxixixi/ResearcherNexus.git
 cd deer-flow
 
 # Установить зависимости, uv позаботится об интерпретаторе python и создании venv, и установит необходимые пакеты

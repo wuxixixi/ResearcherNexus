@@ -4,8 +4,8 @@
 import { Check, Copy, Headphones, Pencil, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { ScrollContainer } from "~/components/deer-flow/scroll-container";
-import { Tooltip } from "~/components/deer-flow/tooltip";
+import { ScrollContainer } from "~/components/researchernexus/scroll-container";
+import { Tooltip } from "~/components/researchernexus/tooltip";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";

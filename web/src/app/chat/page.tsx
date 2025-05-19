@@ -10,9 +10,9 @@ import { Suspense } from "react";
 
 import { Button } from "~/components/ui/button";
 
-import { Logo } from "../../components/deer-flow/logo";
-import { ThemeToggle } from "../../components/deer-flow/theme-toggle";
-import { Tooltip } from "../../components/deer-flow/tooltip";
+import { Logo } from "../../components/researchernexus/logo";
+import { ThemeToggle } from "../../components/researchernexus/theme-toggle";
+import { Tooltip } from "../../components/researchernexus/tooltip";
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
 
 const Main = dynamic(() => import("./main"), {
@@ -33,7 +33,7 @@ export default function HomePage() {
           <Tooltip title="Star DeerFlow on GitHub">
             <Button variant="ghost" size="icon" asChild>
               <Link
-                href="https://github.com/bytedance/deer-flow"
+                href="https://github.com/wuxixixi/ResearcherNexus"
                 target="_blank"
               >
                 <GithubOutlined />

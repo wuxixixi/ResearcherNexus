@@ -23,7 +23,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useRef, useState } from "react";
 
-import { Tooltip } from "~/components/deer-flow/tooltip";
+import { Tooltip } from "~/components/researchernexus/tooltip";
 import { ShineBorder } from "~/components/magicui/shine-border";
 import { Button } from "~/components/ui/button";
 import { Slider } from "~/components/ui/slider";

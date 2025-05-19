@@ -1,4 +1,4 @@
-# 🦌 [About DeerFlow](https://github.com/bytedance/deer-flow)
+# 🦌 [About DeerFlow](https://github.com/wuxixixi/ResearcherNexus)
 
 > **From Open Source, Back to Open Source**
 
@@ -8,7 +8,7 @@ ResearcherNexusis a community-driven AI automation framework inspired by the rem
 
 ## 🌟 GitHub Repository
 
-Explore DeerFlow on GitHub: [github.com/bytedance/deer-flow](https://github.com/bytedance/deer-flow)
+Explore DeerFlow on GitHub: [github.com/wuxixixi/ResearcherNexus](https://github.com/wuxixixi/ResearcherNexus)
 
 ---
 

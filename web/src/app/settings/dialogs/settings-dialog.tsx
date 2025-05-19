@@ -4,7 +4,7 @@
 import { Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Tooltip } from "~/components/deer-flow/tooltip";
+import { Tooltip } from "~/components/researchernexus/tooltip";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {

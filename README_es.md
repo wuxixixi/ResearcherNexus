@@ -75,7 +75,7 @@ Asegúrate de que tu sistema cumple con los siguientes requisitos mínimos:
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/bytedance/deer-flow.git
+git clone https://github.com/wuxixixi/ResearcherNexus.git
 cd deer-flow
 
 # Instalar dependencias, uv se encargará del intérprete de python, la creación del entorno virtual y la instalación de los paquetes necesarios

@@ -52,7 +52,7 @@ export function Jumbotron() {
               }
               href={
                 env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY
-                  ? "https://github.com/bytedance/deer-flow"
+                  ? "https://github.com/wuxixixi/ResearcherNexus"
                   : "/chat"
               }
             >
@@ -67,7 +67,7 @@ export function Jumbotron() {
               asChild
             >
               <Link
-                href="https://github.com/bytedance/deer-flow"
+                href="https://github.com/wuxixixi/ResearcherNexus"
                 target="_blank"
               >
                 <GithubFilled />

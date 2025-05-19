@@ -3,7 +3,7 @@
 
 import { BadgeInfo } from "lucide-react";
 
-import { Markdown } from "~/components/deer-flow/markdown";
+import { Markdown } from "~/components/researchernexus/markdown";
 
 import about from "./about.md";
 import type { Tab } from "./types";
