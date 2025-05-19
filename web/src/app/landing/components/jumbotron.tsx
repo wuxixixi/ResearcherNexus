@@ -67,7 +67,7 @@ export function Jumbotron() {
               asChild
             >
               <Link
-                href="https://github.com/wuxixixi/ResearcherNexus"
+                href="https://cd"
                 target="_blank"
               >
                 <GithubFilled />
