@@ -13,7 +13,7 @@ export async function SiteHeader() {
     <header className="supports-backdrop-blur:bg-background/80 bg-background/40 sticky top-0 left-0 z-40 flex h-15 w-full flex-col items-center backdrop-blur-lg">
       <div className="container flex h-15 items-center justify-between px-3">
         <div className="text-xl font-medium">
-          <span className="mr-1 text-2xl">🦌</span>
+          <span className="mr-1 text-2xl">🔍</span>
           <span>ResearcherNexus</span>
         </div>
         <div className="relative flex items-center">
@@ -32,7 +32,7 @@ export async function SiteHeader() {
           >
             <Link href="https://github.com/wuxixixi/ResearcherNexus" target="_blank">
               <GitHubLogoIcon className="size-4" />
-              Star on GitHub
+              GitHub ⭐
               {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY &&
                 env.GITHUB_OAUTH_TOKEN && <StarCounter />}
             </Link>
