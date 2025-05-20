@@ -127,8 +127,8 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
               autoFocus
               placeholder={
                 hasCompletion
-                  ? "Tell AI what to do next"
-                  : "Ask AI to edit or generate..."
+                  ? "告诉AI接下来做什么"
+                  : "AI进行编辑或生成..."
               }
               onFocus={() => addAIHighlight(editor)}
             />

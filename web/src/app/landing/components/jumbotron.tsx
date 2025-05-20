@@ -24,7 +24,7 @@ export function Jumbotron() {
       />
       <FlickeringGrid
         id="deer-hero"
-        className="absolute inset-0 z-0 translate-y-[2vh] mask-[url(/images/deer-hero.svg)] mask-size-[100vw] mask-center mask-no-repeat md:mask-size-[72vh]"
+        className="absolute inset-0 z-0 translate-y-[2vh] mask-[url(/images/sass.png)] mask-size-[100vw] mask-center mask-no-repeat md:mask-size-[72vh]"
         squareSize={3}
         gridGap={6}
         color="#60A5FA"
@@ -66,7 +66,7 @@ export function Jumbotron() {
               asChild
             >
               <Link
-                href="https://cd"
+                href="https://github.com/wuxixixi/ResearcherNexus"
                 target="_blank"
               >
                 <GithubFilled />

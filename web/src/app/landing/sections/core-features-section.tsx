@@ -13,8 +13,8 @@ const features = [
     name: "深入探索与广泛触达",
     description:
       "利用先进工具解锁更深层次的见解。我们强大的搜索+抓取和Python工具可收集全面数据，提供深度报告以增强您的研究",
-    href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/tools",
-    cta: "Learn more",
+    href: "https://github.com/wuxixixi/ResearcherNexus/tree/master/src/tools",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -25,8 +25,8 @@ const features = [
     name: "人工参与",
     description:
       "通过简单的自然语言优化您的研究计划，或调整重点领域",
-    href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
-    cta: "Learn more",
+    href: "https://github.com/wuxixixi/ResearcherNexus/tree/master/src/graph/nodes.py",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -38,7 +38,7 @@ const features = [
     description:
       "使用 LangChain 和 LangGraph 框架自信地构建",
     href: "https://www.langchain.com/",
-    cta: "Learn more",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -49,8 +49,8 @@ const features = [
     name: "MCP 集成",
     description:
       "通过无缝的 MCP 集成，增强您的研究工作流程并扩展您的工具包",
-    href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/graph/nodes.py",
-    cta: "Learn more",
+    href: "https://github.com/wuxixixi/ResearcherNexus/tree/master/src/graph/nodes.py",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
@@ -61,8 +61,8 @@ const features = [
     name: "播客生成",
     description:
       "即时从报告生成播客 非常适合随时随地学习或轻松分享研究成果",
-    href: "https://github.com/wuxixixi/ResearcherNexus/blob/main/src/podcast",
-    cta: "Learn more",
+    href: "https://github.com/wuxixixi/ResearcherNexus/tree/master/src/podcast",
+    cta: "了解更多",
     background: (
       <img alt="background" className="absolute -top-20 -right-20 opacity-60" />
     ),
