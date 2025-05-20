@@ -77,7 +77,7 @@ export function Jumbotron() {
         </div>
       </div>
       <div className="absolute bottom-8 flex text-xs opacity-50">
-        <p>* DEER stands for Deep Exploration and Efficient Research.</p>
+        <p>* 觉测团队追求的是深度探索与高效研究</p>
       </div>
     </section>
   );
