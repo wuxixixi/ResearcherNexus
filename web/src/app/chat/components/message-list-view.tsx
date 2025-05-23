@@ -288,7 +288,7 @@ function ResearchCard({
   );
 }
 
-const GREETINGS = ["Cool", "Sounds great", "Looks good", "Great", "Awesome"];
+const GREETINGS = ["酷", "听起来不错", "看起来不错", "很棒", "了不起"];
 function PlanCard({
   className,
   message,

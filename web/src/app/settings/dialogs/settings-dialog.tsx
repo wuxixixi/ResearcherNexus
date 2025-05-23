@@ -92,7 +92,7 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Tooltip title="Settings">
+      <Tooltip title="设置">
         <DialogTrigger asChild>
           <Button variant="ghost" size="icon">
             <Settings />

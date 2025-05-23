@@ -38,7 +38,7 @@ export function ThemeToggle() {
               theme === "light" ? "font-bold" : "text-muted-foreground",
             )}
           >
-            Light
+            亮
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
@@ -48,7 +48,7 @@ export function ThemeToggle() {
               theme === "dark" ? "font-bold" : "text-muted-foreground",
             )}
           >
-            Dark
+            暗
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
@@ -58,7 +58,7 @@ export function ThemeToggle() {
               theme === "system" ? "font-bold" : "text-muted-foreground",
             )}
           >
-            System
+            系统
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
