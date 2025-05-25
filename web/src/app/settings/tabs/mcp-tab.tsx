@@ -94,6 +94,10 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
           >
           获取MCP资源。
           </a>
+          <p></p>
+          <p></p>
+          在点击“修改计划”后指定MCP应用名称。
+          <p></p>
 
         </div>
       </header>
