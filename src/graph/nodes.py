@@ -247,6 +247,30 @@ def coordinator_node(
     )
 
 
+async def enhanced_reporter_node(state: State, config: RunnableConfig):
+    """Enhanced reporter node with MCP tools support for better report generation."""
+    logger.info("Enhanced reporter generating final report with MCP tools")
+    
+    # 获取配置和基础信息
+    configurable = Configuration.from_runnable_config(config)
+    current_plan = state.get("current_plan")
+    observations = state.get("observations", [])
+    
+    # 准备基础工具
+    default_tools = [
+        get_web_search_tool(configurable.max_search_results),  # 用于事实核查
+        crawl_tool,  # 用于深度信息获取
+    ]
+    
+    # 使用与研究员相同的MCP工具配置逻辑
+    return await _setup_and_execute_agent_step(
+        state,
+        config,
+        "reporter",  # 新的agent类型
+        default_tools,
+    )
+
+
 def reporter_node(state: State):
     """Reporter node that write a final report."""
     logger.info("Reporter write final report")
@@ -446,15 +470,21 @@ async def _setup_and_execute_agent_step(
 
     # Create and execute agent with MCP tools if available
     if mcp_servers:
-        async with MultiServerMCPClient(mcp_servers) as client:
-            loaded_tools = default_tools[:]
-            for tool in client.get_tools():
-                if tool.name in enabled_tools:
-                    tool.description = (
-                        f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
-                    )
-                    loaded_tools.append(tool)
-            agent = create_agent(agent_type, agent_type, loaded_tools, agent_type)
+        try:
+            async with MultiServerMCPClient(mcp_servers) as client:
+                loaded_tools = default_tools[:]
+                for tool in client.get_tools():
+                    if tool.name in enabled_tools:
+                        tool.description = (
+                            f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
+                        )
+                        loaded_tools.append(tool)
+                agent = create_agent(agent_type, agent_type, loaded_tools, agent_type)
+                return await _execute_agent_step(state, agent, agent_type)
+        except Exception as e:
+            logger.warning(f"Failed to start MCP servers: {e}. Using default tools instead.")
+            # Fall back to default tools if MCP server startup fails
+            agent = create_agent(agent_type, agent_type, default_tools, agent_type)
             return await _execute_agent_step(state, agent, agent_type)
     else:
         # Use default tools if no MCP servers are configured

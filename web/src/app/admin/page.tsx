@@ -120,6 +120,33 @@ function AdminContent() {
     }
   };
 
+  // 删除用户
+  const deleteUser = async (targetUsername: string) => {
+    if (!confirm(`确定要删除用户 "${targetUsername}" 吗？此操作不可撤销。`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/delete-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: targetUsername }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsers(users.filter(user => user.username !== targetUsername));
+      } else {
+        setError(data.error ?? "删除失败");
+      }
+    } catch {
+      setError("网络错误，请重试");
+    }
+  };
+
   const handleEditLimit = (targetUsername: string, currentLimit: number) => {
     setEditingUser(targetUsername);
     setNewLimit(currentLimit.toString());
@@ -198,7 +225,8 @@ function AdminContent() {
                 <TableHead>今日已用</TableHead>
                 <TableHead>剩余次数</TableHead>
                 <TableHead>最后使用</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead>重置操作</TableHead>
+                <TableHead>删除操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -262,6 +290,17 @@ function AdminContent() {
                       disabled={user.used_today === 0}
                     >
                       重置今日使用
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      size="sm" 
+                      variant="destructive"
+                      onClick={() => deleteUser(user.username)}
+                      disabled={user.role === 'admin'}
+                      className={user.role === 'admin' ? 'opacity-50 cursor-not-allowed' : ''}
+                    >
+                      {user.role === 'admin' ? '不可删除' : '删除用户'}
                     </Button>
                   </TableCell>
                 </TableRow>

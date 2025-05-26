@@ -37,7 +37,8 @@ async def _get_tools_from_client_session(
             await session.initialize()
             # List available tools
             listed_tools = await session.list_tools()
-            return listed_tools.tools
+            # Convert Tool objects to dictionaries
+            return [tool.model_dump() for tool in listed_tools.tools]
 
 
 async def load_mcp_tools(
@@ -60,10 +61,10 @@ async def load_mcp_tools(
         timeout_seconds: Timeout in seconds (default: 60 for first-time executions)
 
     Returns:
-        List of available tools from the MCP server
+        List of available tools from the MCP server, or empty list if loading fails
 
     Raises:
-        HTTPException: If there's an error loading the tools
+        HTTPException: If there's a configuration error (not a runtime error)
     """
     try:
         if server_type == "stdio":
@@ -97,8 +98,10 @@ async def load_mcp_tools(
                 status_code=400, detail=f"Unsupported server type: {server_type}"
             )
 
-    except Exception as e:
-        if not isinstance(e, HTTPException):
-            logger.exception(f"Error loading MCP tools: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        # Re-raise configuration errors
         raise
+    except Exception as e:
+        # Log the error but return empty list for runtime errors (like Windows subprocess issues)
+        logger.warning(f"Failed to load MCP tools: {str(e)}. Returning empty tool list.")
+        return []

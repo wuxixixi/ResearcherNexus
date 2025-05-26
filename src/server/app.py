@@ -286,6 +286,8 @@ async def generate_prose(request: GenerateProseRequest):
 async def mcp_server_metadata(request: MCPServerMetadataRequest):
     """Get information about an MCP server."""
     try:
+        logger.info(f"MCP server metadata request: {request}")
+        
         # Set default timeout with a longer value for this endpoint
         timeout = 300  # Default to 300 seconds for this endpoint
 
@@ -293,6 +295,8 @@ async def mcp_server_metadata(request: MCPServerMetadataRequest):
         if request.timeout_seconds is not None:
             timeout = request.timeout_seconds
 
+        logger.info(f"Loading MCP tools with timeout: {timeout}")
+        
         # Load tools from the MCP server using the utility function
         tools = await load_mcp_tools(
             server_type=request.transport,
@@ -303,6 +307,8 @@ async def mcp_server_metadata(request: MCPServerMetadataRequest):
             timeout_seconds=timeout,
         )
 
+        logger.info(f"Loaded {len(tools)} tools from MCP server")
+        
         # Create the response with tools
         response = MCPServerMetadataResponse(
             transport=request.transport,
@@ -313,9 +319,20 @@ async def mcp_server_metadata(request: MCPServerMetadataRequest):
             tools=tools,
         )
 
+        logger.info(f"Returning response with {len(response.tools)} tools")
         return response
     except Exception as e:
         if not isinstance(e, HTTPException):
             logger.exception(f"Error in MCP server metadata endpoint: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
         raise
+
+
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "ok",
+        "version": "fixed_mcp_tools",
+        "timestamp": "2025-01-26"
+    }
