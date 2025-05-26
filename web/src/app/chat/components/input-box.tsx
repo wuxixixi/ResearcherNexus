@@ -19,6 +19,7 @@ import {
   setEnableBackgroundInvestigation,
   useSettingsStore,
 } from "~/core/store";
+import { useAuth } from "~/hooks/useAuth";
 import { cn } from "~/lib/utils";
 
 export function InputBox({
@@ -44,8 +45,12 @@ export function InputBox({
   const backgroundInvestigation = useSettingsStore(
     (state) => state.general.enableBackgroundInvestigation,
   );
+  const { canUseService, getRemainingUsage } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
+
+  const canSend = canUseService();
+  const remainingUsage = getRemainingUsage();
 
   useEffect(() => {
     if (feedback) {
@@ -69,6 +74,9 @@ export function InputBox({
       if (message.trim() === "") {
         return;
       }
+      if (!canSend && !feedback) {
+        return; // 如果没有剩余使用次数且不是反馈消息，则不发送
+      }
       if (onSend) {
         onSend(message, {
           interruptFeedback: feedback?.option.value,
@@ -77,7 +85,7 @@ export function InputBox({
         onRemoveFeedback?.();
       }
     }
-  }, [responding, onCancel, message, onSend, feedback, onRemoveFeedback]);
+  }, [responding, onCancel, message, onSend, feedback, onRemoveFeedback, canSend]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -97,6 +105,16 @@ export function InputBox({
     },
     [responding, imeStatus, handleSendMessage],
   );
+
+  const getPlaceholder = () => {
+    if (feedback) {
+      return `Describe how you ${feedback.option.text.toLocaleLowerCase()}?`;
+    }
+    if (!canSend) {
+      return "今日使用次数已达上限，请明天再试";
+    }
+    return "将您的疑惑或要求写在这里。";
+  };
 
   return (
     <div className={cn("bg-card relative rounded-[24px] border", className)}>
@@ -127,14 +145,12 @@ export function InputBox({
           className={cn(
             "m-0 w-full resize-none border-none px-4 py-3 text-lg",
             size === "large" ? "min-h-32" : "min-h-4",
+            !canSend && !feedback && "opacity-50 cursor-not-allowed"
           )}
           style={{ textIndent: feedback ? `${indent}px` : 0 }}
-          placeholder={
-            feedback
-              ? `Describe how you ${feedback.option.text.toLocaleLowerCase()}?`
-              : "将您的疑惑或要求写在这里。"
-          }
+          placeholder={getPlaceholder()}
           value={message}
+          disabled={!canSend && !feedback}
           onCompositionStart={() => setImeStatus("active")}
           onCompositionEnd={() => setImeStatus("inactive")}
           onKeyDown={handleKeyDown}
@@ -167,6 +183,7 @@ export function InputBox({
               )}
               variant="outline"
               size="lg"
+              disabled={!canSend && !feedback}
               onClick={() =>
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
@@ -176,11 +193,18 @@ export function InputBox({
           </Tooltip>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Tooltip title={responding ? "Stop" : "Send"}>
+          <Tooltip title={
+            !canSend && !feedback 
+              ? `今日使用次数已达上限 (${remainingUsage}次剩余)` 
+              : responding 
+                ? "Stop" 
+                : "Send"
+          }>
             <Button
               variant="outline"
               size="icon"
               className={cn("h-10 w-10 rounded-full")}
+              disabled={!canSend && !feedback}
               onClick={handleSendMessage}
             >
               {responding ? (

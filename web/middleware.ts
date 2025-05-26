@@ -5,9 +5,11 @@ export function middleware(request: NextRequest) {
   // 获取当前路径
   const { pathname } = request.nextUrl;
 
-  // 如果是登录页面或API路由，直接通过
+  // 如果是认证相关页面、管理员页面或API路由，直接通过
   if (
     pathname.startsWith("/auth/login") ||
+    pathname.startsWith("/auth/register") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon.ico") ||

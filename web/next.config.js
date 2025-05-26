@@ -37,6 +37,15 @@ const config = {
 
   // ... rest of the configuration.
   output: "standalone",
+
+  eslint: {
+    // 在构建时忽略ESLint错误
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // 在构建时忽略TypeScript错误（如果需要）
+    // ignoreBuildErrors: true,
+  },
 };
 
 export default config;

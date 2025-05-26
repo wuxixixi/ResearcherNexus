@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { GithubFilled } from "@ant-design/icons";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 import { AuroraText } from "~/components/magicui/aurora-text";
@@ -43,8 +43,8 @@ export function Jumbotron() {
         它拥有强大的工具，如搜索引擎、网络爬虫、
         Python和MCP服务，能够提供即时洞察、全面报告，甚至引人入胜的播客内容。
         </p>
-        <div className="flex gap-6">
-          <Button className="hidden text-lg md:flex md:w-42" size="lg" asChild>
+        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+          <Button className="text-lg w-full md:w-42" size="lg" asChild>
             <Link
               target={
                 env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY ? "_blank" : undefined
@@ -58,9 +58,41 @@ export function Jumbotron() {
               开始研究 <ChevronRight />
             </Link>
           </Button>
+          
           {!env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY && (
+            <>
+              <Button
+                className="w-full md:w-42 text-lg"
+                size="lg"
+                variant="outline"
+                asChild
+              >
+                <Link href="/auth/register">
+                  <UserPlus />
+                  注册账户
+                </Link>
+              </Button>
+              
+              <Button
+                className="w-full md:w-42 text-lg"
+                size="lg"
+                variant="ghost"
+                asChild
+              >
+                <Link
+                  href="https://github.com/wuxixixi/ResearcherNexus"
+                  target="_blank"
+                >
+                  <GithubFilled />
+                  了解更多
+                </Link>
+              </Button>
+            </>
+          )}
+          
+          {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY && (
             <Button
-              className="w-42 text-lg"
+              className="w-full md:w-42 text-lg"
               size="lg"
               variant="outline"
               asChild

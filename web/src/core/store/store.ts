@@ -74,6 +74,42 @@ export const useStore = create<{
   },
 }));
 
+// 检查用户使用次数的函数
+async function checkAndIncrementUsage(username: string): Promise<boolean> {
+  try {
+    const response = await fetch("/api/usage/increment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // 更新本地存储的使用次数
+      localStorage.setItem("usedToday", data.used_today.toString());
+      
+      // 触发自定义事件通知UI更新
+      window.dispatchEvent(new Event('usageUpdated'));
+      
+      return true;
+    } else {
+      if (response.status === 429) {
+        toast.error("今日使用次数已达上限，请明天再试");
+      } else {
+        toast.error(data.error ?? "检查使用次数失败");
+      }
+      return false;
+    }
+  } catch (error) {
+    console.error("检查使用次数错误:", error);
+    toast.error("网络错误，请重试");
+    return false;
+  }
+}
+
 export async function sendMessage(
   content?: string,
   {
@@ -83,6 +119,17 @@ export async function sendMessage(
   } = {},
   options: { abortSignal?: AbortSignal } = {},
 ) {
+  // 如果是用户发送的新消息（不是重播或中断反馈），需要检查使用次数
+  if (content != null && content !== "[REPLAY]" && !interruptFeedback) {
+    const username = localStorage.getItem("username");
+    if (username) {
+      const canUse = await checkAndIncrementUsage(username);
+      if (!canUse) {
+        return; // 如果使用次数已达上限，直接返回
+      }
+    }
+  }
+
   if (content != null) {
     appendMessage({
       id: nanoid(),

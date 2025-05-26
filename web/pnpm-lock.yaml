@@ -64,10 +64,10 @@ importers:
         version: 1.2.7(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@t3-oss/env-core':
         specifier: ^0.13.4
-        version: 0.13.4(arktype@2.1.20)(typescript@5.8.3)(zod@3.25.23)
+        version: 0.13.4(arktype@2.1.20)(typescript@5.8.3)(zod@3.25.28)
       '@t3-oss/env-nextjs':
         specifier: ^0.11.0
-        version: 0.11.1(typescript@5.8.3)(zod@3.25.23)
+        version: 0.11.1(typescript@5.8.3)(zod@3.25.28)
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.1.7)
@@ -106,7 +106,7 @@ importers:
         version: 4.4.1
       framer-motion:
         specifier: ^12.6.5
-        version: 12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       hast:
         specifier: ^1.0.0
         version: 1.0.0
@@ -130,7 +130,7 @@ importers:
         version: 0.487.0(react@19.1.0)
       motion:
         specifier: ^12.7.4
-        version: 12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -190,7 +190,7 @@ importers:
         version: 1.1.0(react@19.1.0)
       zod:
         specifier: ^3.24.3
-        version: 3.25.23
+        version: 3.25.28
       zustand:
         specifier: ^5.0.3
         version: 5.0.5(@types/react@19.1.5)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
@@ -2389,8 +2389,8 @@ packages:
     resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
 
-  framer-motion@12.12.1:
-    resolution: {integrity: sha512-PFw4/GCREHI2suK/NlPSUxd+x6Rkp80uQsfCRFSOQNrm5pZif7eGtmG1VaD/UF1fW9tRBy5AaS77StatB3OJDg==}
+  framer-motion@12.12.2:
+    resolution: {integrity: sha512-qCszZCiGWkilL40E3VuhIJJC/CS3SIBl2IHyGK8FU30nOUhTmhBNWPrNFyozAWH/bXxwzi19vJHIGVdALF0LCg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3108,8 +3108,8 @@ packages:
   motion-utils@12.12.1:
     resolution: {integrity: sha512-f9qiqUHm7hWSLlNW8gS9pisnsN7CRFRD58vNjptKdsqFLpkVnX00TNeD6Q0d27V9KzT7ySFyK1TZ/DShfVOv6w==}
 
-  motion@12.12.1:
-    resolution: {integrity: sha512-vN/3p++Ix0lVt9NH0ZqPrAy8QRTkff27t5z3z5+4BJ3cXPxtOia2EBZS4snM+JUTfl7J0JXP/5ERqu9GT/8IgA==}
+  motion@12.12.2:
+    resolution: {integrity: sha512-ZMvJXkm8QnEYH8NsKGNGMkROjyMtouc7FxTB7FVXW5KQk+ZhunEkh0FWdUKT9kia8dGL0o6YU/RmrFxsI5Plgw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3806,8 +3806,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  tinyglobby@0.2.13:
-    resolution: {integrity: sha512-mEwzpUgrLySlveBwEVDMKk5B57bhLPYovRfPAXD5gA/98Opn0rCDj3GtLwFvCvH5RK9uPCExUROW5NjDwvqkxw==}
+  tinyglobby@0.2.14:
+    resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
     engines: {node: '>=12.0.0'}
 
   tippy.js@6.3.7:
@@ -3988,8 +3988,8 @@ packages:
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
-  webpack-sources@3.2.3:
-    resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
+  webpack-sources@3.3.0:
+    resolution: {integrity: sha512-77R0RDmJfj9dyv5p3bM5pOHa+X8/ZkO9c7kpDstigkC4nIDobadsfSGCwB4bKhMVxqAok8tajaoR8rirM7+VFQ==}
     engines: {node: '>=10.13.0'}
 
   webpack@5.99.9:
@@ -4039,8 +4039,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@3.25.23:
-    resolution: {integrity: sha512-Od2bdMosahjSrSgJtakrwjMDb1zM1A3VIHCPGveZt/3/wlrTWBya2lmEh2OYe4OIu8mPTmmr0gnLHIWQXdtWBg==}
+  zod@3.25.28:
+    resolution: {integrity: sha512-/nt/67WYKnr5by3YS7LroZJbtcCBurDKKPBPWWzaxvVCGuG/NOsiKkrjoOhI8mJ+SQUXEbUzeB3S+6XDUEEj7Q==}
 
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
@@ -4909,23 +4909,23 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@t3-oss/env-core@0.11.1(typescript@5.8.3)(zod@3.25.23)':
+  '@t3-oss/env-core@0.11.1(typescript@5.8.3)(zod@3.25.28)':
     dependencies:
-      zod: 3.25.23
+      zod: 3.25.28
     optionalDependencies:
       typescript: 5.8.3
 
-  '@t3-oss/env-core@0.13.4(arktype@2.1.20)(typescript@5.8.3)(zod@3.25.23)':
+  '@t3-oss/env-core@0.13.4(arktype@2.1.20)(typescript@5.8.3)(zod@3.25.28)':
     dependencies:
       arktype: 2.1.20
     optionalDependencies:
       typescript: 5.8.3
-      zod: 3.25.23
+      zod: 3.25.28
 
-  '@t3-oss/env-nextjs@0.11.1(typescript@5.8.3)(zod@3.25.23)':
+  '@t3-oss/env-nextjs@0.11.1(typescript@5.8.3)(zod@3.25.28)':
     dependencies:
-      '@t3-oss/env-core': 0.11.1(typescript@5.8.3)(zod@3.25.23)
-      zod: 3.25.23
+      '@t3-oss/env-core': 0.11.1(typescript@5.8.3)(zod@3.25.28)
+      zod: 3.25.28
     optionalDependencies:
       typescript: 5.8.3
 
@@ -6121,7 +6121,7 @@ snapshots:
       get-tsconfig: 4.10.1
       is-bun-module: 2.0.0
       stable-hash: 0.0.5
-      tinyglobby: 0.2.13
+      tinyglobby: 0.2.14
       unrs-resolver: 1.7.2
     optionalDependencies:
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.27.0(jiti@2.4.2))
@@ -6357,7 +6357,7 @@ snapshots:
 
   format@0.2.2: {}
 
-  framer-motion@12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  framer-motion@12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       motion-dom: 12.12.1
       motion-utils: 12.12.1
@@ -7319,9 +7319,9 @@ snapshots:
 
   motion-utils@12.12.1: {}
 
-  motion@12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  motion@12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      framer-motion: 12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      framer-motion: 12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.1.0
@@ -8199,7 +8199,7 @@ snapshots:
       commander: 2.20.3
       source-map-support: 0.5.21
 
-  tinyglobby@0.2.13:
+  tinyglobby@0.2.14:
     dependencies:
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
@@ -8439,7 +8439,7 @@ snapshots:
 
   web-namespaces@2.0.1: {}
 
-  webpack-sources@3.2.3: {}
+  webpack-sources@3.3.0: {}
 
   webpack@5.99.9:
     dependencies:
@@ -8466,7 +8466,7 @@ snapshots:
       tapable: 2.2.2
       terser-webpack-plugin: 5.3.14(webpack@5.99.9)
       watchpack: 2.4.4
-      webpack-sources: 3.2.3
+      webpack-sources: 3.3.0
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -8525,7 +8525,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.25.23: {}
+  zod@3.25.28: {}
 
   zustand@4.5.7(@types/react@19.1.5)(immer@10.1.1)(react@19.1.0):
     dependencies:
