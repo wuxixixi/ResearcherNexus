@@ -3,16 +3,21 @@
 
 "use client";
 
-import { GithubOutlined } from "@ant-design/icons";
+import { Suspense } from "react";
+
+import { GithubOutlined, LogoutOutlined } from "@ant-design/icons";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { Button } from "~/components/ui/button";
 
+import { ProtectedRoute } from "~/components/auth/ProtectedRoute";
 import { Logo } from "../../components/researchernexus/logo";
 import { ThemeToggle } from "../../components/researchernexus/theme-toggle";
 import { Tooltip } from "../../components/researchernexus/tooltip";
+
+import { useAuth } from "~/hooks/useAuth";
+
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
 
 const Main = dynamic(() => import("./main"), {
@@ -24,12 +29,22 @@ const Main = dynamic(() => import("./main"), {
   ),
 });
 
-export default function HomePage() {
+function ChatContent() {
+  const { username, logout } = useAuth();
+
   return (
     <div className="flex h-screen w-screen justify-center overscroll-none">
       <header className="fixed top-0 left-0 flex h-12 w-full items-center justify-between px-4">
         <Logo />
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            欢迎, {username}
+          </span>
+          <Tooltip title="登出">
+            <Button variant="ghost" size="icon" onClick={logout}>
+              <LogoutOutlined />
+            </Button>
+          </Tooltip>
           <Tooltip title="在GitHub给ResearcherNexus点赞">
             <Button variant="ghost" size="icon" asChild>
               <Link
@@ -48,5 +63,13 @@ export default function HomePage() {
       </header>
       <Main />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <ProtectedRoute>
+      <ChatContent />
+    </ProtectedRoute>
   );
 }

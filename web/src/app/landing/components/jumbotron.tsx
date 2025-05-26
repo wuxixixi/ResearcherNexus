@@ -52,7 +52,7 @@ export function Jumbotron() {
               href={
                 env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY
                   ? "https://github.com/wuxixixi/ResearcherNexus"
-                  : "/chat"
+                  : "/auth/login"
               }
             >
               开始研究 <ChevronRight />
