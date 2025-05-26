@@ -6,7 +6,8 @@
 import { Suspense, useEffect } from "react";
 import { useAuth } from "~/hooks/useAuth";
 
-import { GithubOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
+import { GithubOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Shield } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -68,7 +69,7 @@ function ChatContent() {
             <Tooltip title="管理员面板">
               <Button variant="ghost" size="icon" asChild>
                 <Link href="/admin">
-                  <SettingOutlined />
+                  <Shield />
                 </Link>
               </Button>
             </Tooltip>

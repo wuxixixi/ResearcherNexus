@@ -106,6 +106,11 @@ export function AddMCPServerDialog({
       for (const server of addingServers) {
         processingServer = server.name;
         const metadata = await queryMCPServerMetadata(server);
+        
+        if (!metadata.tools || metadata.tools.length === 0) {
+          throw new Error(`服务器 "${processingServer}" 没有返回任何工具。这可能是因为：\n1. 服务器启动失败\n2. 命令或参数不正确\n3. Windows环境下的兼容性问题\n4. 网络连接问题\n\n请检查服务器配置或查看控制台日志获取更多信息。`);
+        }
+        
         results.push({ ...metadata, name: server.name, enabled: true });
       }
       if (results.length > 0) {
@@ -115,7 +120,8 @@ export function AddMCPServerDialog({
       setOpen(false);
     } catch (e) {
       console.error(e);
-      setError(`Failed to add server: ${processingServer}`);
+      const errorMessage = e instanceof Error ? e.message : `Failed to add server: ${processingServer}`;
+      setError(errorMessage);
     } finally {
       setProcessing(false);
     }
@@ -133,14 +139,14 @@ export function AddMCPServerDialog({
         <DialogDescription>
           ResearcherNexus使用标准的JSON MCP配置来创建一个新服务器。
           <br />
-          将您的配置粘贴到下方，然后点击“添加”以添加新服务器。
+          将您的配置粘贴到下方，然后点击"添加"以添加新服务器。
         </DialogDescription>
 
         <main>
           <Textarea
             className="h-[360px]"
             placeholder={
-              'Example:\n\n{\n  "mcpServers": {\n    "My Server": {\n      "command": "python",\n      "args": [\n        "-m", "mcp_server"\n      ],\n      "env": {\n        "API_KEY": "YOUR_API_KEY"\n      }\n    }\n  }\n}'
+              'Windows环境推荐配置示例:\n\n{\n  "mcpServers": {\n    "memory-server": {\n      "command": "npx",\n      "args": [\n        "@modelcontextprotocol/server-memory"\n      ]\n    },\n    "filesystem-server": {\n      "command": "npx",\n      "args": [\n        "@modelcontextprotocol/server-filesystem",\n        "C:\\\\Users"\n      ]\n    }\n  }\n}\n\n注意：\n1. Windows环境下某些MCP服务器可能不兼容\n2. 如果添加失败，请检查命令和参数是否正确\n3. 可以查看控制台日志获取详细错误信息'
             }
             value={input}
             onChange={(e) => handleChange(e.target.value)}
@@ -148,11 +154,15 @@ export function AddMCPServerDialog({
         </main>
 
         <DialogFooter>
-          <div className="flex h-10 w-full items-center justify-between gap-2">
+          <div className="flex h-auto w-full items-start justify-between gap-2">
             <div className="text-destructive flex-grow overflow-hidden text-sm">
-              {validationError ?? error}
+              {(validationError ?? error) && (
+                <div className="whitespace-pre-wrap break-words max-h-32 overflow-y-auto p-2 bg-red-50 dark:bg-red-950 rounded border border-red-200 dark:border-red-800">
+                  {validationError ?? error}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button variant="outline" onClick={() => setOpen(false)}>
                 取消
               </Button>

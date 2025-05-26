@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import logging
+import os
 from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -101,7 +102,22 @@ async def load_mcp_tools(
     except HTTPException:
         # Re-raise configuration errors
         raise
+    except NotImplementedError as e:
+        # Windows subprocess limitation - try fallback
+        logger.warning(f"MCP client failed with NotImplementedError (Windows limitation): {str(e)}")
+        logger.info("Attempting Windows compatibility fallback...")
+        
+        try:
+            from .mcp_utils_windows import load_mcp_tools_windows_compatible
+            return await load_mcp_tools_windows_compatible(
+                server_type, command, args, url, env, timeout_seconds
+            )
+        except Exception as fallback_error:
+            logger.error(f"Windows fallback also failed: {type(fallback_error).__name__}: {str(fallback_error)}")
+            return []
     except Exception as e:
-        # Log the error but return empty list for runtime errors (like Windows subprocess issues)
-        logger.warning(f"Failed to load MCP tools: {str(e)}. Returning empty tool list.")
+        # Log the error with more details for debugging
+        import traceback
+        error_details = f"Exception type: {type(e).__name__}, Message: '{str(e)}', Traceback: {traceback.format_exc()}"
+        logger.warning(f"Failed to load MCP tools: {error_details}. Returning empty tool list.")
         return []

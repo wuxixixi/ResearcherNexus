@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { ArrowLeft, Users, Settings } from "lucide-react";
+import { ArrowLeft, Users, Shield } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -184,7 +184,7 @@ function AdminContent() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+            <Shield className="h-5 w-5" />
             <h1 className="text-2xl font-bold">管理员面板</h1>
           </div>
         </div>
