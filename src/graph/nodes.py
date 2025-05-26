@@ -80,7 +80,7 @@ def background_investigation_node(
 
 def planner_node(
     state: State, config: RunnableConfig
-) -> Command[Literal["human_feedback", "reporter"]]:
+) -> Command[Literal["human_feedback", "reporter", "enhanced_reporter"]]:
     """Planner node that generate the full plan."""
     logger.info("Planner generating full plan")
     configurable = Configuration.from_runnable_config(config)
@@ -113,7 +113,9 @@ def planner_node(
 
     # if the plan iterations is greater than the max plan iterations, return the reporter node
     if plan_iterations >= configurable.max_plan_iterations:
-        return Command(goto="reporter")
+        # 检查是否启用增强版报告员
+        use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False)
+        return Command(goto="enhanced_reporter" if use_enhanced_reporter else "reporter")
 
     full_response = ""
     if AGENT_LLM_MAP["planner"] == "basic":
@@ -131,18 +133,22 @@ def planner_node(
     except json.JSONDecodeError:
         logger.warning("Planner response is not a valid JSON")
         if plan_iterations > 0:
-            return Command(goto="reporter")
+            # 检查是否启用增强版报告员
+            use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False)
+            return Command(goto="enhanced_reporter" if use_enhanced_reporter else "reporter")
         else:
             return Command(goto="__end__")
     if curr_plan.get("has_enough_context"):
         logger.info("Planner response has enough context.")
         new_plan = Plan.model_validate(curr_plan)
+        # 检查是否启用增强版报告员
+        use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False)
         return Command(
             update={
                 "messages": [AIMessage(content=full_response, name="planner")],
                 "current_plan": new_plan,
             },
-            goto="reporter",
+            goto="enhanced_reporter" if use_enhanced_reporter else "reporter",
         )
     return Command(
         update={
@@ -154,8 +160,8 @@ def planner_node(
 
 
 def human_feedback_node(
-    state,
-) -> Command[Literal["planner", "research_team", "reporter", "__end__"]]:
+    state, config: RunnableConfig = None
+) -> Command[Literal["planner", "research_team", "reporter", "enhanced_reporter", "__end__"]]:
     current_plan = state.get("current_plan", "")
     # check if the plan is auto accepted
     auto_accepted_plan = state.get("auto_accepted_plan", False)
@@ -187,11 +193,15 @@ def human_feedback_node(
         # parse the plan
         new_plan = json.loads(current_plan)
         if new_plan["has_enough_context"]:
-            goto = "reporter"
+            # 检查是否启用增强版报告员
+            use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False) if config else False
+            goto = "enhanced_reporter" if use_enhanced_reporter else "reporter"
     except json.JSONDecodeError:
         logger.warning("Planner response is not a valid JSON")
         if plan_iterations > 0:
-            return Command(goto="reporter")
+            # 检查是否启用增强版报告员
+            use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False) if config else False
+            return Command(goto="enhanced_reporter" if use_enhanced_reporter else "reporter")
         else:
             return Command(goto="__end__")
 
@@ -262,13 +272,97 @@ async def enhanced_reporter_node(state: State, config: RunnableConfig):
         crawl_tool,  # 用于深度信息获取
     ]
     
-    # 使用与研究员相同的MCP工具配置逻辑
-    return await _setup_and_execute_agent_step(
-        state,
-        config,
-        "reporter",  # 新的agent类型
-        default_tools,
+    # 准备报告员的输入数据，模拟一个"报告生成"步骤
+    reporter_input = {
+        "messages": [
+            HumanMessage(
+                content=f"# Report Generation Task\n\n## Research Topic\n\n{current_plan.title}\n\n## Research Description\n\n{current_plan.thought}\n\n## Research Findings\n\n" + 
+                "\n\n".join([f"### Finding {i+1}\n{obs}" for i, obs in enumerate(observations)]) +
+                f"\n\n## Instructions\n\nGenerate a comprehensive research report based on the above findings. Use available tools to verify key facts, fill information gaps, and enhance the report quality. Ensure all information is accurate and up-to-date.\n\n## Locale\n\n{state.get('locale', 'en-US')}"
+            )
+        ]
+    }
+    
+    # 创建一个临时的"步骤"来处理报告生成
+    from src.prompts.planner_model import Step, StepType
+    temp_step = Step(
+        title="Generate Enhanced Research Report",
+        description="Create a comprehensive research report using available tools for fact-checking and information enhancement",
+        step_type=StepType.RESEARCH,
+        execution_res=None
     )
+    
+    # 临时修改状态以包含这个步骤
+    temp_plan = current_plan.model_copy()
+    temp_plan.steps = [temp_step]
+    temp_state = state.copy()
+    temp_state["current_plan"] = temp_plan
+    
+    # 使用增强版报告员的MCP工具配置逻辑
+    mcp_servers = {}
+    enabled_tools = {}
+
+    # Extract MCP server configuration for reporter agent type
+    if configurable.mcp_settings:
+        for server_name, server_config in configurable.mcp_settings["servers"].items():
+            if (
+                server_config["enabled_tools"]
+                and "reporter" in server_config.get("add_to_agents", [])
+            ):
+                mcp_servers[server_name] = {
+                    k: v
+                    for k, v in server_config.items()
+                    if k in ("transport", "command", "args", "url", "env")
+                }
+                for tool_name in server_config["enabled_tools"]:
+                    enabled_tools[tool_name] = server_name
+
+    # Create and execute agent with MCP tools if available
+    if mcp_servers:
+        try:
+            async with MultiServerMCPClient(mcp_servers) as client:
+                loaded_tools = default_tools[:]
+                for tool in client.get_tools():
+                    if tool.name in enabled_tools:
+                        tool.description = (
+                            f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
+                        )
+                        loaded_tools.append(tool)
+                
+                # 创建增强版报告员代理，使用专门的提示模板
+                agent = create_agent("enhanced_reporter", "enhanced_reporter", loaded_tools, "enhanced_reporter")
+                
+                # 执行报告生成
+                result = await agent.ainvoke(
+                    input=reporter_input, 
+                    config={"recursion_limit": 25}
+                )
+                
+                # 提取报告内容
+                response_content = result["messages"][-1].content
+                logger.info(f"Enhanced reporter response: {response_content}")
+                
+                return {"final_report": response_content}
+                
+        except Exception as e:
+            logger.warning(f"Failed to start MCP servers for enhanced reporter: {e}. Using default tools instead.")
+            # Fall back to default tools if MCP server startup fails
+            agent = create_agent("enhanced_reporter", "enhanced_reporter", default_tools, "enhanced_reporter")
+            result = await agent.ainvoke(
+                input=reporter_input, 
+                config={"recursion_limit": 25}
+            )
+            response_content = result["messages"][-1].content
+            return {"final_report": response_content}
+    else:
+        # Use default tools if no MCP servers are configured
+        agent = create_agent("enhanced_reporter", "enhanced_reporter", default_tools, "enhanced_reporter")
+        result = await agent.ainvoke(
+            input=reporter_input, 
+            config={"recursion_limit": 25}
+        )
+        response_content = result["messages"][-1].content
+        return {"final_report": response_content}
 
 
 def reporter_node(state: State):

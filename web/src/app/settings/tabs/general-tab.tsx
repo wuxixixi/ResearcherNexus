@@ -26,6 +26,7 @@ import type { Tab } from "./types";
 const generalFormSchema = z.object({
   autoAcceptedPlan: z.boolean(),
   enableBackgroundInvestigation: z.boolean(),
+  useEnhancedReporter: z.boolean(),
   maxPlanIterations: z.number().min(1, {
     message: "最大计划迭代次数必须至少为1。",
   }),
@@ -94,6 +95,49 @@ export const GeneralTab: Tab = ({
                       </Label>
                     </div>
                   </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="enableBackgroundInvestigation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="enableBackgroundInvestigation"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <Label className="text-sm" htmlFor="enableBackgroundInvestigation">
+                        启用背景调查
+                      </Label>
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="useEnhancedReporter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="useEnhancedReporter"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <Label className="text-sm" htmlFor="useEnhancedReporter">
+                        使用增强版报告员
+                      </Label>
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    启用增强版报告员以使用MCP工具进行事实核查和信息补充
+                  </FormDescription>
                 </FormItem>
               )}
             />

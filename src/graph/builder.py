@@ -9,6 +9,7 @@ from .nodes import (
     coordinator_node,
     planner_node,
     reporter_node,
+    enhanced_reporter_node,
     research_team_node,
     researcher_node,
     coder_node,
@@ -25,11 +26,29 @@ def _build_base_graph():
     builder.add_node("background_investigator", background_investigation_node)
     builder.add_node("planner", planner_node)
     builder.add_node("reporter", reporter_node)
+    builder.add_node("enhanced_reporter", enhanced_reporter_node)
     builder.add_node("research_team", research_team_node)
     builder.add_node("researcher", researcher_node)
     builder.add_node("coder", coder_node)
     builder.add_node("human_feedback", human_feedback_node)
     builder.add_edge("reporter", END)
+    builder.add_edge("enhanced_reporter", END)
+    return builder
+
+
+def _build_enhanced_graph():
+    """Build and return an enhanced state graph that uses enhanced_reporter by default."""
+    builder = StateGraph(State)
+    builder.add_edge(START, "coordinator")
+    builder.add_node("coordinator", coordinator_node)
+    builder.add_node("background_investigator", background_investigation_node)
+    builder.add_node("planner", planner_node)
+    builder.add_node("enhanced_reporter", enhanced_reporter_node)
+    builder.add_node("research_team", research_team_node)
+    builder.add_node("researcher", researcher_node)
+    builder.add_node("coder", coder_node)
+    builder.add_node("human_feedback", human_feedback_node)
+    builder.add_edge("enhanced_reporter", END)
     return builder
 
 
@@ -44,10 +63,23 @@ def build_graph_with_memory():
     return builder.compile(checkpointer=memory)
 
 
+def build_enhanced_graph_with_memory():
+    """Build and return the enhanced agent workflow graph with memory."""
+    memory = MemorySaver()
+    builder = _build_enhanced_graph()
+    return builder.compile(checkpointer=memory)
+
+
 def build_graph():
     """Build and return the agent workflow graph without memory."""
     # build state graph
     builder = _build_base_graph()
+    return builder.compile()
+
+
+def build_enhanced_graph():
+    """Build and return the enhanced agent workflow graph without memory."""
+    builder = _build_enhanced_graph()
     return builder.compile()
 
 

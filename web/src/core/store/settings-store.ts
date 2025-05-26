@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   general: {
     autoAcceptedPlan: false,
     enableBackgroundInvestigation: false,
+    useEnhancedReporter: false,
     maxPlanIterations: 1,
     maxStepNum: 3,
     maxSearchResults: 3,
@@ -24,6 +25,7 @@ export type SettingsState = {
   general: {
     autoAcceptedPlan: boolean;
     enableBackgroundInvestigation: boolean;
+    useEnhancedReporter: boolean;
     maxPlanIterations: number;
     maxStepNum: number;
     maxSearchResults: number;
@@ -113,7 +115,7 @@ export const getChatStreamSettings = () => {
           [cur.name]: {
             ...server,
             enabled_tools: cur.tools.map((tool) => tool.name),
-            add_to_agents: ["researcher"],
+            add_to_agents: ["researcher", "reporter"],
           },
         };
       }, {}),
