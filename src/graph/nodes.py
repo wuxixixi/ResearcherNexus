@@ -521,6 +521,197 @@ async def _execute_agent_step(
     )
 
 
+def _get_intelligent_tool_recommendations(step_title: str, step_description: str, agent_type: str) -> dict:
+    """
+    Intelligently recommend MCP tools based on the research step content and agent type.
+    
+    Args:
+        step_title: The title of the current research step
+        step_description: The description of the current research step
+        agent_type: The type of agent ("researcher" or "coder")
+    
+    Returns:
+        Dictionary with recommended tool categories and priorities
+    """
+    content = f"{step_title} {step_description}".lower()
+    
+    # Define tool recommendation patterns with both English and Chinese keywords
+    tool_patterns = {
+        # Memory and knowledge management
+        "memory": {
+            "keywords": [
+                # English keywords
+                "store", "remember", "track", "save", "history", "previous", "findings", "knowledge",
+                "memory", "record", "archive", "preserve", "maintain", "keep",
+                # Chinese keywords
+                "存储", "保存", "记录", "追踪", "跟踪", "历史", "之前", "发现", "知识", "记忆",
+                "存档", "维护", "保持", "储存", "建立", "创建", "图谱", "实体", "关系"
+            ],
+            "priority": "high",
+            "agents": ["researcher", "coder"]
+        },
+        
+        # Search and information retrieval
+        "search": {
+            "keywords": [
+                # English keywords
+                "search", "find", "discover", "explore", "investigate", "research", "academic", "papers",
+                "retrieve", "lookup", "query", "browse",
+                # Chinese keywords
+                "搜索", "查找", "发现", "探索", "调查", "研究", "学术", "论文", "检索", "查询",
+                "浏览", "寻找", "获取", "收集"
+            ],
+            "priority": "high", 
+            "agents": ["researcher"]
+        },
+        
+        # Data analysis and processing
+        "analysis": {
+            "keywords": [
+                # English keywords
+                "analyze", "process", "calculate", "statistics", "data", "metrics", "trends", "patterns",
+                "computation", "algorithm", "model", "evaluation",
+                # Chinese keywords
+                "分析", "处理", "计算", "统计", "数据", "指标", "趋势", "模式", "算法",
+                "模型", "评估", "计算", "处理", "解析"
+            ],
+            "priority": "medium",
+            "agents": ["researcher", "coder"]
+        },
+        
+        # File and document management
+        "filesystem": {
+            "keywords": [
+                # English keywords
+                "file", "document", "read", "write", "csv", "json", "pdf", "text", "local",
+                "folder", "directory", "path", "upload", "download",
+                # Chinese keywords
+                "文件", "文档", "读取", "写入", "本地", "目录", "路径", "上传", "下载",
+                "文本", "资料", "材料"
+            ],
+            "priority": "medium",
+            "agents": ["coder", "researcher"]
+        },
+        
+        # Database operations
+        "database": {
+            "keywords": [
+                # English keywords
+                "database", "sql", "query", "table", "records", "store", "retrieve",
+                "insert", "update", "delete", "select",
+                # Chinese keywords
+                "数据库", "查询", "表格", "记录", "插入", "更新", "删除", "选择"
+            ],
+            "priority": "medium",
+            "agents": ["coder"]
+        },
+        
+        # Web and API integration
+        "web_api": {
+            "keywords": [
+                # English keywords
+                "api", "web", "http", "rest", "service", "integration", "external",
+                "endpoint", "request", "response",
+                # Chinese keywords
+                "接口", "网络", "服务", "集成", "外部", "请求", "响应", "调用"
+            ],
+            "priority": "low",
+            "agents": ["coder", "researcher"]
+        },
+        
+        # Citation and reference management
+        "citation": {
+            "keywords": [
+                # English keywords
+                "citation", "reference", "bibliography", "source", "academic", "paper",
+                "cite", "bibliography", "footnote",
+                # Chinese keywords
+                "引用", "参考", "文献", "来源", "学术", "论文", "引文", "脚注", "参考文献"
+            ],
+            "priority": "medium",
+            "agents": ["researcher"]
+        },
+        
+        # Time and scheduling
+        "temporal": {
+            "keywords": [
+                # English keywords
+                "time", "date", "schedule", "timeline", "recent", "latest", "current",
+                "when", "period", "duration",
+                # Chinese keywords
+                "时间", "日期", "时间表", "时间线", "最近", "最新", "当前", "何时", "期间", "持续"
+            ],
+            "priority": "low",
+            "agents": ["researcher"]
+        }
+    }
+    
+    recommendations = {}
+    
+    for category, config in tool_patterns.items():
+        if agent_type in config["agents"]:
+            # Check if any keywords match the content
+            keyword_matches = sum(1 for keyword in config["keywords"] if keyword in content)
+            if keyword_matches > 0:
+                recommendations[category] = {
+                    "priority": config["priority"],
+                    "match_score": keyword_matches,
+                    "keywords_found": [kw for kw in config["keywords"] if kw in content]
+                }
+    
+    return recommendations
+
+
+def _enhance_tool_descriptions_with_context(tools: list, step_title: str, step_description: str, recommendations: dict) -> list:
+    """
+    Enhance tool descriptions with context-specific guidance based on the current research step.
+    
+    Args:
+        tools: List of available tools
+        step_title: Current step title
+        step_description: Current step description
+        recommendations: Tool recommendations from intelligent analysis
+    
+    Returns:
+        List of tools with enhanced descriptions
+    """
+    enhanced_tools = []
+    
+    for tool in tools:
+        enhanced_tool = tool
+        tool_name = tool.name.lower()
+        
+        # Add context-specific guidance to tool descriptions
+        context_guidance = ""
+        
+        # Memory tools guidance
+        if any(keyword in tool_name for keyword in ["memory", "store", "save"]) and "memory" in recommendations:
+            context_guidance = f"\n🎯 RECOMMENDED for this step: Store key findings about '{step_title}' for later reference and cross-step analysis."
+        
+        # Search tools guidance  
+        elif any(keyword in tool_name for keyword in ["search", "web", "brave"]) and "search" in recommendations:
+            context_guidance = f"\n🎯 RECOMMENDED for this step: Use for comprehensive research on '{step_title}' topics."
+        
+        # File system tools guidance
+        elif any(keyword in tool_name for keyword in ["file", "read", "write"]) and "filesystem" in recommendations:
+            context_guidance = f"\n🎯 RECOMMENDED for this step: Access local files or documents related to '{step_title}'."
+        
+        # Analysis tools guidance
+        elif any(keyword in tool_name for keyword in ["analyze", "process", "data"]) and "analysis" in recommendations:
+            context_guidance = f"\n🎯 RECOMMENDED for this step: Process and analyze data for '{step_title}' insights."
+        
+        # Citation tools guidance
+        elif any(keyword in tool_name for keyword in ["citation", "reference", "bib"]) and "citation" in recommendations:
+            context_guidance = f"\n🎯 RECOMMENDED for this step: Manage references and citations for '{step_title}' research."
+        
+        if context_guidance:
+            enhanced_tool.description = f"{tool.description}{context_guidance}"
+        
+        enhanced_tools.append(enhanced_tool)
+    
+    return enhanced_tools
+
+
 async def _setup_and_execute_agent_step(
     state: State,
     config: RunnableConfig,
@@ -543,17 +734,117 @@ async def _setup_and_execute_agent_step(
     Returns:
         Command to update state and go to research_team
     """
+    import asyncio
+    
     configurable = Configuration.from_runnable_config(config)
+    current_plan = state.get("current_plan")
+    
+    # Get current step for intelligent tool selection
+    current_step = None
+    if current_plan and current_plan.steps:
+        for step in current_plan.steps:
+            if not step.execution_res:
+                current_step = step
+                break
+    
+    # Get intelligent tool recommendations
+    recommendations = {}
+    if current_step:
+        recommendations = _get_intelligent_tool_recommendations(
+            current_step.title, 
+            current_step.description, 
+            agent_type
+        )
+        logger.info(f"🧠 Intelligent tool recommendations for {agent_type}: {recommendations}")
+    
     mcp_servers = {}
     enabled_tools = {}
 
     # Extract MCP server configuration for this agent type
     if configurable.mcp_settings:
         for server_name, server_config in configurable.mcp_settings["servers"].items():
-            if (
-                server_config["enabled_tools"]
-                and agent_type in server_config["add_to_agents"]
-            ):
+            # Check if this server should be added to this agent type
+            should_add_server = False
+            
+            # Original logic: explicit agent configuration
+            if (server_config.get("enabled_tools") and 
+                agent_type in server_config.get("add_to_agents", [])):
+                # Smart filtering: even for explicitly configured servers, check if they match recommendations
+                if recommendations:
+                    # For explicitly configured servers, check if they're relevant to current task
+                    server_tools = server_config.get("enabled_tools", [])
+                    is_relevant = False
+                    
+                    for tool_name in server_tools:
+                        tool_name_lower = tool_name.lower()
+                        
+                        # Check if this server's tools match any recommendations
+                        if ("memory" in recommendations and any(keyword in tool_name_lower for keyword in 
+                               ["memory", "entities", "relations", "observations", "store", "save", "create", "add"])) or \
+                           ("search" in recommendations and any(keyword in tool_name_lower for keyword in 
+                               ["search", "find", "query", "retrieve", "browse", "papers", "paper"])) or \
+                           ("filesystem" in recommendations and any(keyword in tool_name_lower for keyword in 
+                               ["file", "read", "write", "directory", "path"])) or \
+                           ("analysis" in recommendations and any(keyword in tool_name_lower for keyword in 
+                               ["analyze", "process", "calculate", "data", "statistics"])) or \
+                           ("citation" in recommendations and any(keyword in tool_name_lower for keyword in 
+                               ["citation", "reference", "bibliography", "cite"])):
+                            is_relevant = True
+                            break
+                    
+                    if is_relevant:
+                        should_add_server = True
+                        logger.info(f"📋✨ Explicitly configured server '{server_name}' for {agent_type} - RELEVANT to current task")
+                    else:
+                        logger.info(f"📋⏭️ Skipping explicitly configured server '{server_name}' for {agent_type} - NOT relevant to current task")
+                else:
+                    # No recommendations available, use explicit configuration as-is
+                    should_add_server = True
+                    logger.info(f"📋 Explicitly configured server '{server_name}' for {agent_type}")
+            
+            # Enhanced logic: intelligent tool recommendation (for servers without explicit config)
+            elif server_config.get("enabled_tools") and recommendations and not server_config.get("add_to_agents"):
+                # Check if any of the server's tools match our recommendations
+                server_tools = server_config.get("enabled_tools", [])
+                for tool_name in server_tools:
+                    tool_name_lower = tool_name.lower()
+                    
+                    # Check for memory tools
+                    if "memory" in recommendations and any(keyword in tool_name_lower for keyword in 
+                           ["memory", "entities", "relations", "observations", "store", "save", "create", "add"]):
+                        should_add_server = True
+                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on memory tool recommendation")
+                        break
+                    
+                    # Check for search tools
+                    elif "search" in recommendations and any(keyword in tool_name_lower for keyword in 
+                           ["search", "find", "query", "retrieve", "browse", "papers", "paper"]):
+                        should_add_server = True
+                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on search tool recommendation")
+                        break
+                    
+                    # Check for file system tools
+                    elif "filesystem" in recommendations and any(keyword in tool_name_lower for keyword in 
+                           ["file", "read", "write", "directory", "path"]):
+                        should_add_server = True
+                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on filesystem tool recommendation")
+                        break
+                    
+                    # Check for analysis tools
+                    elif "analysis" in recommendations and any(keyword in tool_name_lower for keyword in 
+                           ["analyze", "process", "calculate", "data", "statistics"]):
+                        should_add_server = True
+                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on analysis tool recommendation")
+                        break
+                    
+                    # Check for citation tools
+                    elif "citation" in recommendations and any(keyword in tool_name_lower for keyword in 
+                           ["citation", "reference", "bibliography", "cite"]):
+                        should_add_server = True
+                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on citation tool recommendation")
+                        break
+            
+            if should_add_server:
                 mcp_servers[server_name] = {
                     k: v
                     for k, v in server_config.items()
@@ -565,23 +856,62 @@ async def _setup_and_execute_agent_step(
     # Create and execute agent with MCP tools if available
     if mcp_servers:
         try:
-            async with MultiServerMCPClient(mcp_servers) as client:
+            logger.info(f"🔌 Attempting to connect to {len(mcp_servers)} MCP server(s): {list(mcp_servers.keys())}")
+            
+            # Add timeout mechanism to prevent system lockup
+            async def connect_with_timeout():
+                async with MultiServerMCPClient(mcp_servers) as client:
+                    return client
+            
+            # Use asyncio.wait_for to add timeout
+            try:
+                client = await asyncio.wait_for(connect_with_timeout(), timeout=30.0)
+                logger.info("✅ MCP servers connected successfully")
+                
                 loaded_tools = default_tools[:]
+                mcp_tools = []
+                
                 for tool in client.get_tools():
                     if tool.name in enabled_tools:
                         tool.description = (
                             f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
                         )
-                        loaded_tools.append(tool)
+                        mcp_tools.append(tool)
+                
+                # Enhance tool descriptions with context-specific guidance
+                if current_step and mcp_tools:
+                    mcp_tools = _enhance_tool_descriptions_with_context(
+                        mcp_tools, 
+                        current_step.title, 
+                        current_step.description, 
+                        recommendations
+                    )
+                
+                loaded_tools.extend(mcp_tools)
+                
+                # Log tool usage for debugging
+                if mcp_tools:
+                    tool_names = [t.name for t in mcp_tools]
+                    logger.info(f"🔧 Enhanced {agent_type} with {len(mcp_tools)} MCP tools: {tool_names}")
+                
                 agent = create_agent(agent_type, agent_type, loaded_tools, agent_type)
                 return await _execute_agent_step(state, agent, agent_type)
+                
+            except asyncio.TimeoutError:
+                logger.warning("⏰ MCP server connection timed out after 30 seconds")
+                logger.info("🔄 Falling back to default tools")
+                # Fall back to default tools if MCP server connection times out
+                agent = create_agent(agent_type, agent_type, default_tools, agent_type)
+                return await _execute_agent_step(state, agent, agent_type)
+                
         except Exception as e:
-            logger.warning(f"Failed to start MCP servers: {e}. Using default tools instead.")
+            logger.warning(f"❌ Failed to start MCP servers: {e}. Using default tools instead.")
             # Fall back to default tools if MCP server startup fails
             agent = create_agent(agent_type, agent_type, default_tools, agent_type)
             return await _execute_agent_step(state, agent, agent_type)
     else:
         # Use default tools if no MCP servers are configured
+        logger.info(f"🛠️ Using default tools for {agent_type} (no MCP servers configured)")
         agent = create_agent(agent_type, agent_type, default_tools, agent_type)
         return await _execute_agent_step(state, agent, agent_type)
 

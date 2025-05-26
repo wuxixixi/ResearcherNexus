@@ -1,0 +1,49 @@
+{
+  "general": {
+    "autoAcceptedPlan": false,
+    "enableBackgroundInvestigation": true,
+    "useEnhancedReporter": true,
+    "maxPlanIterations": 2,
+    "maxStepNum": 5,
+    "maxSearchResults": 5
+  },
+  "mcp": {
+    "servers": [
+      {
+        "name": "memory-server",
+        "transport": "stdio",
+        "command": "npx",
+        "args": [
+          "@modelcontextprotocol/server-memory"
+        ],
+        "enabled": true,
+        "tools": [
+          {
+            "name": "create_entities",
+            "description": "Create multiple new entities in the knowledge graph"
+          },
+          {
+            "name": "create_relations",
+            "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice"
+          },
+          {
+            "name": "add_observations",
+            "description": "Add new observations to existing entities in the knowledge graph"
+          },
+          {
+            "name": "delete_entities",
+            "description": "Delete multiple entities and their associated relations from the knowledge graph"
+          },
+          {
+            "name": "delete_observations",
+            "description": "Delete specific observations from entities in the knowledge graph"
+          },
+          {
+            "name": "delete_relations",
+            "description": "Delete multiple relations from the knowledge graph"
+          }
+        ]
+      }
+    ]
+  }
+}

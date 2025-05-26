@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "memory-server": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-memory"]
+    },
+    "sequential-thinking": {
+      "command": "npx", 
+      "args": ["@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "filesystem-server": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "D:\\ResearcherNexus"]
+    }
+  }
+} 
