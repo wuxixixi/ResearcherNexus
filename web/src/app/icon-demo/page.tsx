@@ -1,6 +1,7 @@
 "use client";
 
 import { Settings, Shield, Users } from "lucide-react";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 
 export default function IconDemoPage() {

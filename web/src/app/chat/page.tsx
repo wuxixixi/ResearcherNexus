@@ -3,20 +3,20 @@
 
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { useAuth } from "~/hooks/useAuth";
 
 import { GithubOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Shield } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { Suspense, useEffect } from "react";
 
-import { Button } from "~/components/ui/button";
 import { ProtectedRoute } from "~/components/auth/ProtectedRoute";
+import { Button } from "~/components/ui/button";
+import { useAuth } from "~/hooks/useAuth";
+
 import { Logo } from "../../components/researchernexus/logo";
 import { ThemeToggle } from "../../components/researchernexus/theme-toggle";
 import { Tooltip } from "../../components/researchernexus/tooltip";
-
 import { SettingsDialog } from "../settings/dialogs/settings-dialog";
 
 const Main = dynamic(() => import("./main"), {

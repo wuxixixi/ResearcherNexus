@@ -96,7 +96,7 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
           </a>
           <p></p>
           <p></p>
-          在点击“修改计划”后指定MCP应用名称。
+          在点击&ldquo;修改计划&rdquo;后指定MCP应用名称。
           <p></p>
 
         </div>
@@ -193,6 +193,7 @@ export const MCPTab: Tab = ({ settings, onChange }) => {
     </div>
   );
 };
+MCPTab.displayName = "MCPTab";
 MCPTab.icon = Blocks;
 MCPTab.badge = "Beta";
 

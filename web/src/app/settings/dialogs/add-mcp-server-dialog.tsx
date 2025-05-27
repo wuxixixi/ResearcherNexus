@@ -139,7 +139,7 @@ export function AddMCPServerDialog({
         <DialogDescription>
           ResearcherNexus使用标准的JSON MCP配置来创建一个新服务器。
           <br />
-          将您的配置粘贴到下方，然后点击"添加"以添加新服务器。
+          将您的配置粘贴到下方，然后点击&ldquo;添加&rdquo;以添加新服务器。
         </DialogDescription>
 
         <main>

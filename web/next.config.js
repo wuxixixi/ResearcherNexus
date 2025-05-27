@@ -39,8 +39,10 @@ const config = {
   output: "standalone",
 
   eslint: {
-    // 在构建时忽略ESLint错误
-    ignoreDuringBuilds: true,
+    // Enable ESLint during builds
+    ignoreDuringBuilds: false,
+    // Only errors will fail the build, not warnings
+    dirs: ['src'],
   },
   typescript: {
     // 在构建时忽略TypeScript错误（如果需要）

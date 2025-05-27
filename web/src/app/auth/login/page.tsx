@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
+import { Logo } from "~/components/researchernexus/logo";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Logo } from "~/components/researchernexus/logo";
-
-import { ArrowLeft } from "lucide-react";
-
 import { useAuth } from "~/hooks/useAuth";
 
 export default function LoginPage() {

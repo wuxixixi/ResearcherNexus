@@ -188,7 +188,7 @@ export function InputBox({
                 setEnableBackgroundInvestigation(!backgroundInvestigation)
               }
             >
-              <Detective /> 计划前调研
+              <Detective /> 背景调查
             </Button>
           </Tooltip>
         </div>
