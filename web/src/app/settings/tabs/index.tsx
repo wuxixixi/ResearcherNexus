@@ -15,11 +15,12 @@ const TAB_LABELS: Record<string, string> = {
 };
 
 export const SETTINGS_TABS = [GeneralTab, MCPTab, AboutTab].map((tab) => {
-  const name = tab.name ?? tab.displayName;
-  const baseLabel = name.replace(/Tab$/, "");
+  // 直接使用 displayName，不再依赖 name 属性
+  const displayName = tab.displayName ?? "";
+  const baseLabel = displayName.replace(/Tab$/, "");
   return {
     ...tab,
-    id: baseLabel.toLocaleLowerCase(),
+    id: baseLabel.toLowerCase(),
     label: TAB_LABELS[baseLabel] ?? baseLabel,
     icon: (tab.icon ?? <Settings />) as LucideIcon,
     component: tab,

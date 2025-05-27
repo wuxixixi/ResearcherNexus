@@ -30,6 +30,21 @@ from src.server.mcp_request import MCPServerMetadataRequest, MCPServerMetadataRe
 from src.server.mcp_utils import load_mcp_tools
 from src.tools import VolcengineTTS
 
+
+# 自定义日志过滤器，屏蔽特定的 404 请求
+class IgnoreBackuperFilter(logging.Filter):
+    def filter(self, record):
+        # 检查是否是 uvicorn.access 日志
+        if record.name == "uvicorn.access":
+            # 检查日志消息是否包含 c_hello 请求
+            if "/c_hello?asker=backuper" in record.getMessage():
+                return False  # 屏蔽这条日志
+        return True  # 允许其他日志
+
+
+# 配置日志过滤器
+logging.getLogger("uvicorn.access").addFilter(IgnoreBackuperFilter())
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -336,3 +351,10 @@ async def health_check():
         "version": "fixed_mcp_tools",
         "timestamp": "2025-01-26"
     }
+
+
+@app.get("/c_hello")
+async def c_hello():
+    """Handle backuper probe requests silently."""
+    # 返回一个简单的响应，避免 404 错误
+    return {"status": "ok"}

@@ -11,10 +11,13 @@ Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 
 # Execute build
 Write-Host "Building..." -ForegroundColor Cyan
-pnpm build
+& pnpm build
+$buildExitCode = $LASTEXITCODE
 
-if ($LASTEXITCODE -eq 0) {
+if ($buildExitCode -eq 0) {
     Write-Host "Build successful!" -ForegroundColor Green
+    exit 0
 } else {
     Write-Host "Build failed!" -ForegroundColor Red
+    exit $buildExitCode
 } 
