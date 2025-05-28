@@ -1,9 +1,9 @@
 username,password,role,daily_limit,used_today,last_used_date
-admin,admin123,admin,999,13,2025-05-26
+admin,admin123,admin,999,2,2025-05-28
 user,password,user,10,0,
 test,test123,user,10,0,
 demo,demo456,user,5,0,
 wuxi2,123123,user,10,0,
-wuxi3,123123,user,1,1,2025-05-27
+wuxi3,123123,user,1,0,2025-05-27
 wuxi4,123123,user,10,2,2025-05-26
 wuxi5,456456,user,10,0,

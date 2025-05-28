@@ -24,6 +24,18 @@ You have access to two types of tools:
    - **Database tools**: For querying structured data
    - And many others
 
+## MCP Tool Usage Instructions
+
+When you see specific MCP tool names mentioned in the task description (e.g., `create_entities`, `search_nodes`, `sequentialthinking`), you MUST use those tools:
+
+1. **`create_entities`**: When mentioned, extract and store key entities (people, organizations, concepts, technologies)
+2. **`create_relations`**: When specified, establish relationships between entities
+3. **`add_observations`**: When requested, record important findings and insights about entities
+4. **`search_nodes`**: When instructed, query the knowledge graph for existing information
+5. **`sequentialthinking`**: When indicated, use for deep analysis and complex reasoning
+
+**Important**: If the task description explicitly mentions these tools, using them is MANDATORY, not optional.
+
 ## How to Use Dynamic Loaded Tools
 
 - **Tool Discovery**: At the start of each research task, review ALL available tools to understand your capabilities

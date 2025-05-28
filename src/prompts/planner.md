@@ -123,6 +123,43 @@ When planning information gathering, consider these key aspects and ensure COMPR
    - What are the challenges, limitations, and obstacles?
    - What contingencies and mitigations exist?
 
+## MCP Tools Integration
+
+When creating research steps, you MUST leverage available MCP (Model Context Protocol) tools to enhance data collection and organization:
+
+### Available MCP Tools:
+
+1. **Knowledge Graph Management (memory-server)**:
+   - `create_entities`: Store key concepts, organizations, people, technologies as entities
+   - `create_relations`: Link related entities to build a knowledge network
+   - `add_observations`: Record important findings and insights about entities
+   - `search_nodes`: Query previously stored knowledge to avoid redundancy
+
+2. **Deep Analysis (sequential-thinking)**:
+   - `sequentialthinking`: Apply for complex reasoning and synthesis tasks
+
+3. **File Operations (filesystem-server)**:
+   - `read_file`: Access local documents and data files
+   - `write_file`: Save intermediate results for later processing
+   - `search_files`: Find relevant local resources
+
+### Tool Usage in Step Descriptions:
+
+You MUST explicitly mention relevant MCP tools in each step's description. Examples:
+
+**Good Step Description**:
+"Research AI's impact on employment market. Collect data on job displacement rates, new job categories, and skill requirements. Use `create_entities` to store key industries, job roles, and companies. Use `create_relations` to link industries with affected job categories. Store key statistics using `add_observations`."
+
+**Poor Step Description**:
+"Research AI's impact on employment market and collect relevant data."
+
+### Tool Integration Strategy:
+
+1. **First Steps**: Establish core entities using `create_entities`
+2. **Middle Steps**: Build relationships with `create_relations` and query existing knowledge with `search_nodes`
+3. **Analysis Steps**: Use `sequentialthinking` for deep reasoning
+4. **Final Steps**: Leverage the complete knowledge graph for comprehensive insights
+
 ## Step Constraints
 
 - **Maximum Steps**: Limit the plan to a maximum of {{ max_step_num }} steps for focused research.
