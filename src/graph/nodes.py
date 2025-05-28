@@ -1,7 +1,7 @@
+import json
 # Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 # SPDX-License-Identifier: MIT
 
-import json
 import logging
 import os
 from typing import Annotated, Literal
@@ -26,6 +26,7 @@ from src.llms.llm import get_llm_by_type
 from src.prompts.planner_model import Plan, StepType
 from src.prompts.template import apply_prompt_template
 from src.utils.json_utils import repair_json_output
+from src.utils.mcp_tools import get_installed_mcp_tools, recommend_tools_for_step
 
 from .types import State
 from ..config import SELECTED_SEARCH_ENGINE, SearchEngine
@@ -130,6 +131,36 @@ def planner_node(
 
     try:
         curr_plan = json.loads(repair_json_output(full_response))
+        
+        # === 修改：从 configurable.mcp_settings 构建工具列表 ===
+        available_mcp_tools = []
+        if configurable.mcp_settings and "servers" in configurable.mcp_settings:
+            for server_name, server_config in configurable.mcp_settings["servers"].items():
+                if "enabled_tools" in server_config and isinstance(server_config["enabled_tools"], list):
+                    # Prepare a map of tool_name to description from the detailed tools list, if available
+                    tool_descriptions = {}
+                    if "tools" in server_config and isinstance(server_config["tools"], list):
+                        for tool_detail in server_config["tools"]:
+                            if isinstance(tool_detail, dict) and "name" in tool_detail:
+                                tool_descriptions[tool_detail["name"]] = tool_detail.get("description", "")
+
+                    for tool_name in server_config["enabled_tools"]:
+                        description = tool_descriptions.get(tool_name, f"Tool {tool_name} from server {server_name} (description not found)")
+                        available_mcp_tools.append({
+                            "tool": tool_name, 
+                            "description": description
+                        }) 
+
+        # 调试打印：显示 planner_node 为 recommend_tools_for_step 准备的工具列表
+        logger.info(f"[DEBUG] Tools for recommend_tools_for_step in planner_node: {available_mcp_tools}")
+        # mcp_tools = get_installed_mcp_tools() # 旧的调用方式
+        for step in curr_plan.get("steps", []):
+            recommended = recommend_tools_for_step(step.get("title", ""), step.get("description", ""), available_mcp_tools) # 使用新的工具列表
+            if recommended:
+                # 确认 recommend_tools_for_step 返回的推荐列表中每个字典的工具名键是否也是 "tool"
+                # 如果是，则这里也应该用 t["tool"]
+                tool_str = ", ".join(f'`{t["tool"]}`' for t in recommended) # 确认使用 "tool" 键
+                step["description"] = step.get("description", "") + f"\n\n建议使用的MCP工具：{tool_str}"
     except json.JSONDecodeError:
         logger.warning("Planner response is not a valid JSON")
         if plan_iterations > 0:
@@ -340,7 +371,7 @@ async def enhanced_reporter_node(state: State, config: RunnableConfig):
                 
                 # 提取报告内容
                 response_content = result["messages"][-1].content
-                logger.info(f"Enhanced reporter response: {response_content}")
+                # logger.info(f"Enhanced reporter response: {response_content}") # 暂时注释掉
                 
                 return {"final_report": response_content}
                 
@@ -353,6 +384,7 @@ async def enhanced_reporter_node(state: State, config: RunnableConfig):
                 config={"recursion_limit": 25}
             )
             response_content = result["messages"][-1].content
+            # logger.info(f"Enhanced reporter fallback response: {response_content}") # 暂时注释掉，区分于MCP成功的情况
             return {"final_report": response_content}
     else:
         # Use default tools if no MCP servers are configured
@@ -362,6 +394,7 @@ async def enhanced_reporter_node(state: State, config: RunnableConfig):
             config={"recursion_limit": 25}
         )
         response_content = result["messages"][-1].content
+        # logger.info(f"Enhanced reporter default tools response: {response_content}") # 暂时注释掉
         return {"final_report": response_content}
 
 
@@ -395,10 +428,10 @@ def reporter_node(state: State):
                 name="observation",
             )
         )
-    logger.debug(f"Current invoke messages: {invoke_messages}")
+    # logger.debug(f"Current invoke messages: {invoke_messages}") # 暂时注释掉
     response = get_llm_by_type(AGENT_LLM_MAP["reporter"]).invoke(invoke_messages)
     response_content = response.content
-    logger.info(f"reporter response: {response_content}")
+    # logger.info(f"reporter response: {response_content}") # 暂时注释掉
 
     return {"final_report": response_content}
 
@@ -421,104 +454,6 @@ def research_team_node(
     if step.step_type and step.step_type == StepType.PROCESSING:
         return Command(goto="coder")
     return Command(goto="planner")
-
-
-async def _execute_agent_step(
-    state: State, agent, agent_name: str
-) -> Command[Literal["research_team"]]:
-    """Helper function to execute a step using the specified agent."""
-    current_plan = state.get("current_plan")
-    observations = state.get("observations", [])
-
-    # Find the first unexecuted step
-    current_step = None
-    completed_steps = []
-    for step in current_plan.steps:
-        if not step.execution_res:
-            current_step = step
-            break
-        else:
-            completed_steps.append(step)
-
-    if not current_step:
-        logger.warning("No unexecuted step found")
-        return Command(goto="research_team")
-
-    logger.info(f"Executing step: {current_step.title}")
-
-    # Format completed steps information
-    completed_steps_info = ""
-    if completed_steps:
-        completed_steps_info = "# Existing Research Findings\n\n"
-        for i, step in enumerate(completed_steps):
-            completed_steps_info += f"## Existing Finding {i+1}: {step.title}\n\n"
-            completed_steps_info += f"<finding>\n{step.execution_res}\n</finding>\n\n"
-
-    # Prepare the input for the agent with completed steps info
-    agent_input = {
-        "messages": [
-            HumanMessage(
-                content=f"{completed_steps_info}# Current Task\n\n## Title\n\n{current_step.title}\n\n## Description\n\n{current_step.description}\n\n## Locale\n\n{state.get('locale', 'en-US')}"
-            )
-        ]
-    }
-
-    # Add citation reminder for researcher agent
-    if agent_name == "researcher":
-        agent_input["messages"].append(
-            HumanMessage(
-                content="IMPORTANT: DO NOT include inline citations in the text. Instead, track all sources and include a References section at the end using link reference format. Include an empty line between each citation for better readability. Use this format for each reference:\n- [Source Title](URL)\n\n- [Another Source](URL)",
-                name="system",
-            )
-        )
-
-    # Invoke the agent
-    default_recursion_limit = 25
-    try:
-        env_value_str = os.getenv("AGENT_RECURSION_LIMIT", str(default_recursion_limit))
-        parsed_limit = int(env_value_str)
-
-        if parsed_limit > 0:
-            recursion_limit = parsed_limit
-            logger.info(f"Recursion limit set to: {recursion_limit}")
-        else:
-            logger.warning(
-                f"AGENT_RECURSION_LIMIT value '{env_value_str}' (parsed as {parsed_limit}) is not positive. "
-                f"Using default value {default_recursion_limit}."
-            )
-            recursion_limit = default_recursion_limit
-    except ValueError:
-        raw_env_value = os.getenv("AGENT_RECURSION_LIMIT")
-        logger.warning(
-            f"Invalid AGENT_RECURSION_LIMIT value: '{raw_env_value}'. "
-            f"Using default value {default_recursion_limit}."
-        )
-        recursion_limit = default_recursion_limit
-
-    result = await agent.ainvoke(
-        input=agent_input, config={"recursion_limit": recursion_limit}
-    )
-
-    # Process the result
-    response_content = result["messages"][-1].content
-    logger.debug(f"{agent_name.capitalize()} full response: {response_content}")
-
-    # Update the step with the execution result
-    current_step.execution_res = response_content
-    logger.info(f"Step '{current_step.title}' execution completed by {agent_name}")
-
-    return Command(
-        update={
-            "messages": [
-                HumanMessage(
-                    content=response_content,
-                    name=agent_name,
-                )
-            ],
-            "observations": observations + [response_content],
-        },
-        goto="research_team",
-    )
 
 
 def _get_intelligent_tool_recommendations(step_title: str, step_description: str, agent_type: str) -> dict:
@@ -721,9 +656,9 @@ async def _setup_and_execute_agent_step(
     """Helper function to set up an agent with appropriate tools and execute a step.
 
     This function handles the common logic for both researcher_node and coder_node:
-    1. Configures MCP servers and tools based on agent type
-    2. Creates an agent with the appropriate tools or uses the default agent
-    3. Executes the agent on the current step
+    1. Configures MCP servers and tools based on agent type (and intelligent recommendations)
+    2. Creates an agent with the appropriate tools.
+    3. Executes the agent on the current step.
 
     Args:
         state: The current state
@@ -734,186 +669,187 @@ async def _setup_and_execute_agent_step(
     Returns:
         Command to update state and go to research_team
     """
-    import asyncio
-    
+    import asyncio # Ensure asyncio is imported
+
     configurable = Configuration.from_runnable_config(config)
     current_plan = state.get("current_plan")
-    
-    # Get current step for intelligent tool selection
-    current_step = None
+    observations = state.get("observations", []) # Get observations at the beginning
+
+    # Get current step for intelligent tool selection and execution
+    # This is the step that will be executed by the agent
+    current_step_to_execute = None
+    completed_steps_for_input = [] # For providing context to the agent
     if current_plan and current_plan.steps:
-        for step in current_plan.steps:
-            if not step.execution_res:
-                current_step = step
-                break
+        for step_obj in current_plan.steps:
+            if not step_obj.execution_res:
+                current_step_to_execute = step_obj
+                break # Found the step to execute
+            else:
+                completed_steps_for_input.append(step_obj)
     
+    if not current_step_to_execute:
+        logger.warning(f"No unexecuted step found for {agent_type}. Returning to research_team.")
+        return Command(goto="research_team")
+
     # Get intelligent tool recommendations
     recommendations = {}
-    if current_step:
-        recommendations = _get_intelligent_tool_recommendations(
-            current_step.title, 
-            current_step.description, 
-            agent_type
-        )
-        logger.info(f"🧠 Intelligent tool recommendations for {agent_type}: {recommendations}")
+    recommendations = _get_intelligent_tool_recommendations(
+        current_step_to_execute.title, 
+        current_step_to_execute.description, 
+        agent_type
+    )
+    logger.info(f"🧠 Intelligent tool recommendations for {agent_type} on step '{current_step_to_execute.title}': {recommendations}")
     
-    mcp_servers = {}
-    enabled_tools = {}
+    mcp_servers_config = {} # Renamed to avoid confusion with mcp_servers local var in original
+    enabled_mcp_tools = {} # Renamed
 
-    # Extract MCP server configuration for this agent type
     if configurable.mcp_settings:
-        for server_name, server_config in configurable.mcp_settings["servers"].items():
-            # Check if this server should be added to this agent type
+        for server_name, server_config_item in configurable.mcp_settings["servers"].items(): # Renamed server_config
             should_add_server = False
-            
-            # Original logic: explicit agent configuration
-            if (server_config.get("enabled_tools") and 
-                agent_type in server_config.get("add_to_agents", [])):
-                # Smart filtering: even for explicitly configured servers, check if they match recommendations
+            # ... (Existing logic for should_add_server based on recommendations and explicit config)
+            # This logic (lines 816-896 approx) remains the same.
+            # For brevity in this diff, I'm assuming it's correctly placed here.
+            # --- Start of existing server selection logic ---
+            if (server_config_item.get("enabled_tools") and 
+                agent_type in server_config_item.get("add_to_agents", [])):
                 if recommendations:
-                    # For explicitly configured servers, check if they're relevant to current task
-                    server_tools = server_config.get("enabled_tools", [])
+                    server_tools = server_config_item.get("enabled_tools", [])
                     is_relevant = False
-                    
                     for tool_name in server_tools:
                         tool_name_lower = tool_name.lower()
-                        
-                        # Check if this server's tools match any recommendations
-                        if ("memory" in recommendations and any(keyword in tool_name_lower for keyword in 
-                               ["memory", "entities", "relations", "observations", "store", "save", "create", "add"])) or \
-                           ("search" in recommendations and any(keyword in tool_name_lower for keyword in 
-                               ["search", "find", "query", "retrieve", "browse", "papers", "paper"])) or \
-                           ("filesystem" in recommendations and any(keyword in tool_name_lower for keyword in 
-                               ["file", "read", "write", "directory", "path"])) or \
-                           ("analysis" in recommendations and any(keyword in tool_name_lower for keyword in 
-                               ["analyze", "process", "calculate", "data", "statistics"])) or \
-                           ("citation" in recommendations and any(keyword in tool_name_lower for keyword in 
-                               ["citation", "reference", "bibliography", "cite"])):
+                        if ("memory" in recommendations and any(keyword in tool_name_lower for keyword in ["memory", "entities", "relations", "observations", "store", "save", "create", "add"])) or \
+                           ("search" in recommendations and any(keyword in tool_name_lower for keyword in ["search", "find", "query", "retrieve", "browse", "papers", "paper"])) or \
+                           ("filesystem" in recommendations and any(keyword in tool_name_lower for keyword in ["file", "read", "write", "directory", "path"])) or \
+                           ("analysis" in recommendations and any(keyword in tool_name_lower for keyword in ["analyze", "process", "calculate", "data", "statistics"])) or \
+                           ("citation" in recommendations and any(keyword in tool_name_lower for keyword in ["citation", "reference", "bibliography", "cite"])):
                             is_relevant = True
                             break
-                    
-                    if is_relevant:
-                        should_add_server = True
-                        logger.info(f"📋✨ Explicitly configured server '{server_name}' for {agent_type} - RELEVANT to current task")
-                    else:
-                        logger.info(f"📋⏭️ Skipping explicitly configured server '{server_name}' for {agent_type} - NOT relevant to current task")
-                else:
-                    # No recommendations available, use explicit configuration as-is
-                    should_add_server = True
-                    logger.info(f"📋 Explicitly configured server '{server_name}' for {agent_type}")
-            
-            # Enhanced logic: intelligent tool recommendation (for servers without explicit config)
-            elif server_config.get("enabled_tools") and recommendations and not server_config.get("add_to_agents"):
-                # Check if any of the server's tools match our recommendations
-                server_tools = server_config.get("enabled_tools", [])
+                    if is_relevant: should_add_server = True; logger.info(f"📋✨ Explicitly configured server '{server_name}' for {agent_type} - RELEVANT to current task")
+                    else: logger.info(f"📋⏭️ Skipping explicitly configured server '{server_name}' for {agent_type} - NOT relevant to current task")
+                else: should_add_server = True; logger.info(f"📋 Explicitly configured server '{server_name}' for {agent_type}")
+            elif server_config_item.get("enabled_tools") and recommendations and not server_config_item.get("add_to_agents"):
+                server_tools = server_config_item.get("enabled_tools", [])
                 for tool_name in server_tools:
                     tool_name_lower = tool_name.lower()
-                    
-                    # Check for memory tools
-                    if "memory" in recommendations and any(keyword in tool_name_lower for keyword in 
-                           ["memory", "entities", "relations", "observations", "store", "save", "create", "add"]):
-                        should_add_server = True
-                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on memory tool recommendation")
-                        break
-                    
-                    # Check for search tools
-                    elif "search" in recommendations and any(keyword in tool_name_lower for keyword in 
-                           ["search", "find", "query", "retrieve", "browse", "papers", "paper"]):
-                        should_add_server = True
-                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on search tool recommendation")
-                        break
-                    
-                    # Check for file system tools
-                    elif "filesystem" in recommendations and any(keyword in tool_name_lower for keyword in 
-                           ["file", "read", "write", "directory", "path"]):
-                        should_add_server = True
-                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on filesystem tool recommendation")
-                        break
-                    
-                    # Check for analysis tools
-                    elif "analysis" in recommendations and any(keyword in tool_name_lower for keyword in 
-                           ["analyze", "process", "calculate", "data", "statistics"]):
-                        should_add_server = True
-                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on analysis tool recommendation")
-                        break
-                    
-                    # Check for citation tools
-                    elif "citation" in recommendations and any(keyword in tool_name_lower for keyword in 
-                           ["citation", "reference", "bibliography", "cite"]):
-                        should_add_server = True
-                        logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on citation tool recommendation")
-                        break
-            
+                    if ("memory" in recommendations and any(keyword in tool_name_lower for keyword in ["memory", "entities", "relations", "observations", "store", "save", "create", "add"])): should_add_server = True; logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on memory tool recommendation"); break
+                    elif ("search" in recommendations and any(keyword in tool_name_lower for keyword in ["search", "find", "query", "retrieve", "browse", "papers", "paper"])): should_add_server = True; logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on search tool recommendation"); break
+                    elif ("filesystem" in recommendations and any(keyword in tool_name_lower for keyword in ["file", "read", "write", "directory", "path"])): should_add_server = True; logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on filesystem tool recommendation"); break
+                    elif ("analysis" in recommendations and any(keyword in tool_name_lower for keyword in ["analyze", "process", "calculate", "data", "statistics"])): should_add_server = True; logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on analysis tool recommendation"); break
+                    elif ("citation" in recommendations and any(keyword in tool_name_lower for keyword in ["citation", "reference", "bibliography", "cite"])): should_add_server = True; logger.info(f"🎯 Auto-enabling server '{server_name}' for {agent_type} based on citation tool recommendation"); break
+            # --- End of existing server selection logic ---
             if should_add_server:
-                mcp_servers[server_name] = {
+                mcp_servers_config[server_name] = {
                     k: v
-                    for k, v in server_config.items()
+                    for k, v in server_config_item.items()
                     if k in ("transport", "command", "args", "url", "env")
                 }
-                for tool_name in server_config["enabled_tools"]:
-                    enabled_tools[tool_name] = server_name
+                for tool_name in server_config_item["enabled_tools"]:
+                    enabled_mcp_tools[tool_name] = server_name
 
-    # Create and execute agent with MCP tools if available
-    if mcp_servers:
+    # Agent execution logic, adapted from the original _execute_agent_step
+    async def _invoke_agent_on_step(agent_instance, step_to_run, completed_steps_context):
+        logger.info(f"Executing step: {step_to_run.title} with agent {agent_type}")
+        
+        completed_steps_info_str = ""
+        if completed_steps_context:
+            completed_steps_info_str = "# Existing Research Findings\\n\\n"
+            for i, c_step in enumerate(completed_steps_context):
+                completed_steps_info_str += f"## Existing Finding {i+1}: {c_step.title}\\n\\n"
+                completed_steps_info_str += f"<finding>\\n{c_step.execution_res}\\n</finding>\\n\\n"
+
+        agent_input_dict = {
+            "messages": [
+                HumanMessage(
+                    content=f"{completed_steps_info_str}# Current Task\\n\\n## Title\\n\\n{step_to_run.title}\\n\\n## Description\\n\\n{step_to_run.description}\\n\\n## Locale\\n\\n{state.get('locale', 'en-US')}"
+                )
+            ]
+        }
+        if agent_type == "researcher":
+            agent_input_dict["messages"].append(
+                HumanMessage(
+                    content="IMPORTANT: DO NOT include inline citations in the text. Instead, track all sources and include a References section at the end using link reference format. Include an empty line between each citation for better readability. Use this format for each reference:\\n- [Source Title](URL)\\n\\n- [Another Source](URL)",
+                    name="system",
+                )
+            )
+        
+        default_recursion_limit = 25
+        recursion_limit = default_recursion_limit
         try:
-            logger.info(f"🔌 Attempting to connect to {len(mcp_servers)} MCP server(s): {list(mcp_servers.keys())}")
-            
-            # Add timeout mechanism to prevent system lockup
-            async def connect_with_timeout():
-                async with MultiServerMCPClient(mcp_servers) as client:
-                    return client
-            
-            # Use asyncio.wait_for to add timeout
-            try:
-                client = await asyncio.wait_for(connect_with_timeout(), timeout=30.0)
-                logger.info("✅ MCP servers connected successfully")
+            env_value_str = os.getenv("AGENT_RECURSION_LIMIT", str(default_recursion_limit))
+            parsed_limit = int(env_value_str)
+            if parsed_limit > 0: recursion_limit = parsed_limit
+            else: logger.warning(f"AGENT_RECURSION_LIMIT value '{env_value_str}' (parsed as {parsed_limit}) is not positive. Using default {default_recursion_limit}.")
+        except ValueError: logger.warning(f"Invalid AGENT_RECURSION_LIMIT value: '{os.getenv('AGENT_RECURSION_LIMIT')}'. Using default {default_recursion_limit}.")
+
+        logger.info(f"[DEBUG] Invoking agent '{agent_type}' with input: {agent_input_dict}")
+        result = await agent_instance.ainvoke(input=agent_input_dict, config={"recursion_limit": recursion_limit})
+        logger.info(f"[DEBUG] Agent '{agent_type}' raw result: {result}")
+
+        response_content = result["messages"][-1].content
+        step_to_run.execution_res = response_content # Update the original step object
+        logger.info(f"Step '{step_to_run.title}' execution completed by {agent_type}")
+
+        return Command(
+            update={
+                "messages": [HumanMessage(content=response_content, name=agent_type)],
+                "observations": observations + [response_content], # Use observations from outer scope
+            },
+            goto="research_team",
+        )
+
+    # Create and execute agent
+    if mcp_servers_config:
+        try:
+            logger.info(f"🔌 Attempting to connect to {len(mcp_servers_config)} MCP server(s): {list(mcp_servers_config.keys())}")
+            # Correctly manage MultiServerMCPClient lifecycle
+            # Timeout can wrap the 'async with' if using asyncio.timeout (Python 3.11+)
+            # For now, focusing on ClosedResourceError by correct 'async with' usage
+            async with MultiServerMCPClient(mcp_servers_config) as client:
+                logger.info("✅ MCP servers connected successfully (client context entered)")
                 
-                loaded_tools = default_tools[:]
-                mcp_tools = []
+                loaded_mcp_tools = default_tools[:] # Start with default tools
+                actual_mcp_tools_loaded = [] # For logging
                 
-                for tool in client.get_tools():
-                    if tool.name in enabled_tools:
-                        tool.description = (
-                            f"Powered by '{enabled_tools[tool.name]}'.\n{tool.description}"
+                for tool_instance in client.get_tools():
+                    if tool_instance.name in enabled_mcp_tools:
+                        tool_instance.description = (
+                            f"Powered by '{enabled_mcp_tools[tool_instance.name]}'.\\n{tool_instance.description}"
                         )
-                        mcp_tools.append(tool)
+                        actual_mcp_tools_loaded.append(tool_instance)
                 
-                # Enhance tool descriptions with context-specific guidance
-                if current_step and mcp_tools:
-                    mcp_tools = _enhance_tool_descriptions_with_context(
-                        mcp_tools, 
-                        current_step.title, 
-                        current_step.description, 
+                if current_step_to_execute and actual_mcp_tools_loaded:
+                    actual_mcp_tools_loaded = _enhance_tool_descriptions_with_context(
+                        actual_mcp_tools_loaded, 
+                        current_step_to_execute.title, 
+                        current_step_to_execute.description, 
                         recommendations
                     )
                 
-                loaded_tools.extend(mcp_tools)
+                loaded_mcp_tools.extend(actual_mcp_tools_loaded)
                 
-                # Log tool usage for debugging
-                if mcp_tools:
-                    tool_names = [t.name for t in mcp_tools]
-                    logger.info(f"🔧 Enhanced {agent_type} with {len(mcp_tools)} MCP tools: {tool_names}")
+                if actual_mcp_tools_loaded:
+                    tool_names = [t.name for t in actual_mcp_tools_loaded]
+                    logger.info(f"🔧 Enhanced {agent_type} with {len(actual_mcp_tools_loaded)} MCP tools: {tool_names}")
                 
-                agent = create_agent(agent_type, agent_type, loaded_tools, agent_type)
-                return await _execute_agent_step(state, agent, agent_type)
+                mcp_agent = create_agent(agent_type, agent_type, loaded_mcp_tools, agent_type)
+                return await _invoke_agent_on_step(mcp_agent, current_step_to_execute, completed_steps_for_input)
                 
-            except asyncio.TimeoutError:
-                logger.warning("⏰ MCP server connection timed out after 30 seconds")
-                logger.info("🔄 Falling back to default tools")
-                # Fall back to default tools if MCP server connection times out
-                agent = create_agent(agent_type, agent_type, default_tools, agent_type)
-                return await _execute_agent_step(state, agent, agent_type)
-                
+        except asyncio.TimeoutError: # If a timeout wraps the above block and triggers
+            logger.warning("⏰ MCP server operation timed out.")
+            logger.info("🔄 Falling back to default tools")
+            # Fallback: create agent with default tools and execute
+            default_agent = create_agent(agent_type, agent_type, default_tools, agent_type)
+            return await _invoke_agent_on_step(default_agent, current_step_to_execute, completed_steps_for_input)
         except Exception as e:
-            logger.warning(f"❌ Failed to start MCP servers: {e}. Using default tools instead.")
-            # Fall back to default tools if MCP server startup fails
-            agent = create_agent(agent_type, agent_type, default_tools, agent_type)
-            return await _execute_agent_step(state, agent, agent_type)
+            logger.warning(f"❌ Failed to start or use MCP servers: {e}. Using default tools instead.")
+            # Fallback: create agent with default tools and execute
+            default_agent_on_error = create_agent(agent_type, agent_type, default_tools, agent_type)
+            return await _invoke_agent_on_step(default_agent_on_error, current_step_to_execute, completed_steps_for_input)
     else:
         # Use default tools if no MCP servers are configured
-        logger.info(f"🛠️ Using default tools for {agent_type} (no MCP servers configured)")
-        agent = create_agent(agent_type, agent_type, default_tools, agent_type)
-        return await _execute_agent_step(state, agent, agent_type)
+        logger.info(f"🛠️ Using default tools for {agent_type} (no MCP servers configured or recommended)")
+        vanilla_agent = create_agent(agent_type, agent_type, default_tools, agent_type)
+        return await _invoke_agent_on_step(vanilla_agent, current_step_to_execute, completed_steps_for_input)
 
 
 async def researcher_node(

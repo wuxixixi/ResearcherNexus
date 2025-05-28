@@ -1,0 +1,25 @@
+{
+  "servers": [
+    {
+      "name": "server-sequential-thinking",
+      "tools": [
+        {"name": "sequentialthinking", "description": "顺序推理工具"}
+      ]
+    },
+    {
+      "name": "exa",
+      "tools": [
+        {"name": "web_search_exa", "description": "Exa网络搜索"},
+        {"name": "research_paper_search", "description": "学术论文检索"},
+        {"name": "collaborativereasoning", "description": "协同推理"},
+        {"name": "decisionframework", "description": "决策框架"}
+      ]
+    },
+    {
+      "name": "perplexity-search",
+      "tools": [
+        {"name": "search", "description": "Perplexity通用搜索"}
+      ]
+    }
+  ]
+} 
