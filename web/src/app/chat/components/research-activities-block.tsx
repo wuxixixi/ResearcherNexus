@@ -391,7 +391,11 @@ function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
                       boxShadow: "none",
                     }}
                   >
-                    {toolCall.result.trim()}
+                    {typeof toolCall.result === 'string' 
+                      ? toolCall.result.trim() 
+                      : toolCall.result === null || typeof toolCall.result === 'undefined'
+                        ? "[No Result Data]"
+                        : JSON.stringify(toolCall.result, null, 2)}
                   </SyntaxHighlighter>
                 </div>
               )}

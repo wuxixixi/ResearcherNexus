@@ -786,6 +786,7 @@ async def _setup_and_execute_agent_step(
         logger.info(f"[DEBUG] Agent '{agent_type}' raw result: {result}")
 
         response_content = result["messages"][-1].content
+        logger.debug(f"{agent_type.capitalize()} full response: {response_content}") # 恢复此行日志
         step_to_run.execution_res = response_content # Update the original step object
         logger.info(f"Step '{step_to_run.title}' execution completed by {agent_type}")
 
