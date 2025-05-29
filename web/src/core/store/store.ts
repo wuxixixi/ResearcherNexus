@@ -285,16 +285,19 @@ function appendResearch(researchId: string) {
 function appendResearchActivity(message: Message) {
   const researchId = getOngoingResearchId();
   if (researchId) {
-    const researchActivityIds = useStore.getState().researchActivityIds;
-    const current = researchActivityIds.get(researchId)!;
-    if (!current.includes(message.id)) {
-      useStore.setState({
-        researchActivityIds: new Map(researchActivityIds).set(researchId, [
-          ...current,
-          message.id,
-        ]),
-      });
+    if (message.agent !== "reporter") {
+      const researchActivityIds = useStore.getState().researchActivityIds;
+      const current = researchActivityIds.get(researchId);
+      if (current && !current.includes(message.id)) {
+        useStore.setState({
+          researchActivityIds: new Map(researchActivityIds).set(researchId, [
+            ...current,
+            message.id,
+          ]),
+        });
+      }
     }
+
     if (message.agent === "reporter") {
       useStore.setState({
         researchReportIds: new Map(useStore.getState().researchReportIds).set(

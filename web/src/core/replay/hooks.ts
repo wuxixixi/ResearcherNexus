@@ -14,8 +14,10 @@ export function useReplay() {
     () => extractReplayIdFromSearchParams(searchParams.toString()),
     [searchParams],
   );
-  return {
+
+  // Memoize the returned object to ensure stable reference if replayId doesn't change
+  return useMemo(() => ({
     isReplay: replayId != null || env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY,
     replayId,
-  };
+  }), [replayId]); // env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY is a build-time constant
 }

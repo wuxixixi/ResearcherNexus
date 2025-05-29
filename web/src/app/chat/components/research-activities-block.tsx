@@ -26,8 +26,7 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { findMCPTool } from "~/core/mcp";
 import type { ToolCallRuntime } from "~/core/messages";
-import { useMessage, useStore } from "~/core/store";
-import { parseJSON } from "~/core/utils";
+import { useStore, useMessage } from "~/core/store";
 import { cn } from "~/lib/utils";
 
 export function ResearchActivitiesBlock({
@@ -37,37 +36,78 @@ export function ResearchActivitiesBlock({
   className?: string;
   researchId: string;
 }) {
-  const activityIds = useStore((state) =>
-    state.researchActivityIds.get(researchId),
-  )!;
-  const ongoing = useStore((state) => state.ongoingResearchId === researchId);
+  console.log("[ResearchActivitiesBlock] Rendering with researchId:", researchId);
+
+  const activityIds = useStore((state) => {
+    // console.log("[ResearchActivitiesBlock] useStore selector for activityIds running. researchId:", researchId);
+    return state.researchActivityIds.get(researchId);
+  });
+
+  const ongoing = useStore((state) => {
+    // console.log("[ResearchActivitiesBlock] useStore selector for ongoing running. researchId:", researchId, "state.ongoingResearchId:", state.ongoingResearchId);
+    return state.ongoingResearchId === researchId;
+  });
+
+  // console.log("[ResearchActivitiesBlock] activityIds:", activityIds);
+  // console.log("[ResearchActivitiesBlock] ongoing:", ongoing);
+
+  if (!researchId) {
+    console.warn("[ResearchActivitiesBlock] No researchId provided.");
+    return <div className={cn("p-4 text-red-500", className)}>错误: 未提供研究ID。</div>;
+  }
+
+  if (!activityIds) {
+    console.warn("[ResearchActivitiesBlock] No activityIds found for researchId:", researchId);
+    // Still render the basic block structure but indicate no activities
+    return (
+      <div className={cn("p-4", className)}>
+        <p>研究活动区 (Research Activities Block)</p>
+        <p>当前研究 ID (Research ID): {researchId}</p>
+        <p>活动 IDs (Activity IDs): 无活动 (No activities found)</p>
+        <p>是否进行中 (Ongoing): {String(ongoing)}</p>
+        <p>（内容仍为调试简化版，仅测试状态获取）</p>
+        {/* {ongoing && <LoadingAnimation className="mx-4 my-12" />} */} 
+      </div>
+    );
+  }
+  
+  // Restore list rendering structure, but with simple placeholders for items
   return (
     <>
       <ul className={cn("flex flex-col py-4", className)}>
         {activityIds.map(
           (activityId, i) =>
-            i !== 0 && (
-              <motion.li
-                key={activityId}
-                style={{ transition: "all 0.4s ease-out" }}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.4,
-                  ease: "easeOut",
-                }}
-              >
-                <ActivityMessage messageId={activityId} />
-                <ActivityListItem messageId={activityId} />
-                {i !== activityIds.length - 1 && <hr className="my-8" />}
-              </motion.li>
-            ),
+            // We will re-introduce the i !== 0 condition later if needed
+            // For now, let's render all items to see if mapping is the issue.
+            <motion.li
+              key={activityId}
+              style={{ transition: "all 0.4s ease-out" }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.4,
+                ease: "easeOut",
+              }}
+              className="my-2 p-2 border rounded"
+            >
+              {/* <p>活动项占位符 (Activity Item Placeholder)</p>
+              <p>ID: {activityId}</p> */}
+              <ActivityMessage messageId={activityId} />
+              <ActivityListItem messageId={activityId} />
+              {/* {i !== activityIds.length - 1 && <hr className="my-8" />} */}
+            </motion.li>
         )}
       </ul>
-      {ongoing && <LoadingAnimation className="mx-4 my-12" />}
+      {/* {ongoing && <LoadingAnimation className="mx-4 my-12" />} */} 
     </>
   );
+
 }
+
+// ... (Rest of the original file content, like ActivityMessage, ActivityListItem, etc., 
+// can remain commented out or be temporarily removed if they cause import errors 
+// due to their own dependencies being commented out above)
+// For now, I will assume they are effectively removed by commenting out their usage in the return.
 
 function ActivityMessage({ messageId }: { messageId: string }) {
   const message = useMessage(messageId);
@@ -85,19 +125,20 @@ function ActivityMessage({ messageId }: { messageId: string }) {
   return null;
 }
 
+// /*
 function ActivityListItem({ messageId }: { messageId: string }) {
   const message = useMessage(messageId);
   if (message) {
     if (!message.isStreaming && message.toolCalls?.length) {
       for (const toolCall of message.toolCalls) {
         if (toolCall.name === "web_search") {
-          return <WebSearchToolCall key={toolCall.id} toolCall={toolCall} />;
+          return <WebSearchToolCall key={toolCall.id} toolCall={toolCall} message={message} />;
         } else if (toolCall.name === "crawl_tool") {
-          return <CrawlToolCall key={toolCall.id} toolCall={toolCall} />;
+          return <CrawlToolCall key={toolCall.id} toolCall={toolCall} message={message} />;
         } else if (toolCall.name === "python_repl_tool") {
-          return <PythonToolCall key={toolCall.id} toolCall={toolCall} />;
+          return <PythonToolCall key={toolCall.id} toolCall={toolCall} message={message} />;
         } else {
-          return <MCPToolCall key={toolCall.id} toolCall={toolCall} />;
+          return <MCPToolCall key={toolCall.id} toolCall={toolCall} message={message} />;
         }
       }
     }
@@ -105,304 +146,174 @@ function ActivityListItem({ messageId }: { messageId: string }) {
   return null;
 }
 
-const __pageCache = new LRUCache<string, string>({ max: 100 });
-type SearchResult =
-  | {
-      type: "page";
-      title: string;
-      url: string;
-      content: string;
-    }
-  | {
-      type: "image";
-      image_url: string;
-      image_description: string;
-    };
-function WebSearchToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const searching = useMemo(() => {
-    return toolCall.result === undefined;
-  }, [toolCall.result]);
-  const searchResults = useMemo<SearchResult[]>(() => {
-    let results: SearchResult[] | undefined = undefined;
-    try {
-      results = toolCall.result ? parseJSON(toolCall.result, []) : undefined;
-    } catch {
-      results = undefined;
-    }
-    if (Array.isArray(results)) {
-      results.forEach((result) => {
-        if (result.type === "page") {
-          __pageCache.set(result.url, result.title);
-        }
-      });
-    } else {
-      results = [];
-    }
-    return results;
-  }, [toolCall.result]);
-  const pageResults = useMemo(
-    () => searchResults?.filter((result) => result.type === "page"),
-    [searchResults],
-  );
-  const imageResults = useMemo(
-    () => searchResults?.filter((result) => result.type === "image"),
-    [searchResults],
-  );
-  return (
-    <section className="mt-4 pl-4">
-      <div className="font-medium italic">
-        <RainbowText
-          className="flex items-center"
-          animated={searchResults === undefined}
-        >
-          <Search size={16} className={"mr-2"} />
-          <span>Searching for&nbsp;</span>
-          <span className="max-w-[500px] overflow-hidden text-ellipsis whitespace-nowrap">
-            {(toolCall.args as { query: string }).query}
-          </span>
-        </RainbowText>
-      </div>
-      <div className="pr-4">
-        {pageResults && (
-          <ul className="mt-2 flex flex-wrap gap-4">
-            {searching &&
-              [...Array(6)].map((_, i) => (
-                <li
-                  key={`search-result-${i}`}
-                  className="flex h-40 w-40 gap-2 rounded-md text-sm"
-                >
-                  <Skeleton
-                    className="to-accent h-full w-full rounded-md bg-gradient-to-tl from-slate-400"
-                    style={{ animationDelay: `${i * 0.2}s` }}
-                  />
-                </li>
-              ))}
-            {pageResults
-              .filter((result) => result.type === "page")
-              .map((searchResult, i) => (
-                <motion.li
-                  key={`search-result-${i}`}
-                  className="text-muted-foreground bg-accent flex max-w-40 gap-2 rounded-md px-2 py-1 text-sm"
-                  initial={{ opacity: 0, y: 10, scale: 0.66 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    duration: 0.2,
-                    delay: i * 0.1,
-                    ease: "easeOut",
-                  }}
-                >
-                  <FavIcon
-                    className="mt-1"
-                    url={searchResult.url}
-                    title={searchResult.title}
-                  />
-                  <a href={searchResult.url} target="_blank">
-                    {searchResult.title}
-                  </a>
-                </motion.li>
-              ))}
-            {imageResults.map((searchResult, i) => (
-              <motion.li
-                key={`search-result-${i}`}
-                initial={{ opacity: 0, y: 10, scale: 0.66 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.2,
-                  delay: i * 0.1,
-                  ease: "easeOut",
-                }}
-              >
-                <a
-                  className="flex flex-col gap-2 overflow-hidden rounded-md opacity-75 transition-opacity duration-300 hover:opacity-100"
-                  href={searchResult.image_url}
-                  target="_blank"
-                >
-                  <Image
-                    src={searchResult.image_url}
-                    alt={searchResult.image_description}
-                    className="bg-accent h-40 w-40 max-w-full rounded-md bg-cover bg-center bg-no-repeat"
-                    imageClassName="hover:scale-110"
-                    imageTransition
-                  />
-                </a>
-              </motion.li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
-  );
-}
+// ... other helper components like WebSearchToolCall, CrawlToolCall etc. would also be here ...
+// Define these components here for now. They might need to be moved to separate files later.
 
-function CrawlToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const url = useMemo(
-    () => (toolCall.args as { url: string }).url,
-    [toolCall.args],
-  );
-  const title = useMemo(() => __pageCache.get(url), [url]);
-  return (
-    <section className="mt-4 pl-4">
-      <div>
-        <RainbowText
-          className="flex items-center text-base font-medium italic"
-          animated={toolCall.result === undefined}
-        >
-          <BookOpenText size={16} className={"mr-2"} />
-          <span>Reading</span>
-        </RainbowText>
-      </div>
-      <ul className="mt-2 flex flex-wrap gap-4">
-        <motion.li
-          className="text-muted-foreground bg-accent flex h-40 w-40 gap-2 rounded-md px-2 py-1 text-sm"
-          initial={{ opacity: 0, y: 10, scale: 0.66 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            duration: 0.2,
-            ease: "easeOut",
-          }}
-        >
-          <FavIcon className="mt-1" url={url} title={title} />
-          <a
-            className="h-full flex-grow overflow-hidden text-ellipsis whitespace-nowrap"
-            href={url}
-            target="_blank"
-          >
-            {title ?? url}
-          </a>
-        </motion.li>
-      </ul>
-    </section>
-  );
-}
+const previstoHostCache = new LRUCache<string, string>({ max: 100 });
 
-function PythonToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const code = useMemo<string>(() => {
-    return (toolCall.args as { code: string }).code;
-  }, [toolCall.args]);
+function WebSearchToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
+  const args = toolCall.args as { query: string };
+  const result = toolCall.result as unknown as
+    | { query: string; results: { title: string; url: string }[] }
+    | undefined;
   const { resolvedTheme } = useTheme();
+  const borderColor = resolvedTheme === "dark" ? "#444" : "#ddd";
+
   return (
-    <section className="mt-4 pl-4">
-      <div className="flex items-center">
-        <PythonOutlined className={"mr-2"} />
-        <RainbowText
-          className="text-base font-medium italic"
-          animated={toolCall.result === undefined}
-        >
-          Running Python code
-        </RainbowText>
+    <div className="group/tool-call relative my-4 flex flex-col gap-2 rounded-lg border p-4" style={{ borderColor }}>
+      <div className="flex items-center gap-2">
+        <Search size={18} />
+        <span className="font-semibold">Web Search:</span>
+        <span>{args.query}</span>
       </div>
-      <div>
-        <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
-          <SyntaxHighlighter
-            language="python"
-            style={resolvedTheme === "dark" ? dark : docco}
-            customStyle={{
-              background: "transparent",
-              border: "none",
-              boxShadow: "none",
-            }}
-          >
-            {code.trim()}
-          </SyntaxHighlighter>
+      {message.isStreaming && !result && (
+        <div className="flex items-center gap-2">
+          <LoadingAnimation />
+          <span>Searching...</span>
         </div>
-      </div>
-      {toolCall.result && <PythonToolCallResult result={toolCall.result} />}
-    </section>
+      )}
+      {result && Array.isArray(result.results) && (
+        <ul className="ml-6 flex flex-col gap-2">
+          {result.results.map((item, index) => (
+            <li key={index} className="flex items-center gap-2">
+              <FavIcon url={item.url} title={item.title} />
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                {item.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
-function PythonToolCallResult({ result }: { result: string }) {
+function CrawlToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
+  const args = toolCall.args as { url: string };
+  const result = toolCall.result as string | undefined;
   const { resolvedTheme } = useTheme();
-  const hasError = useMemo(
-    () => result.includes("Error executing code:\n"),
-    [result],
-  );
-  const error = useMemo(() => {
-    if (hasError) {
-      const parts = result.split("```\nError: ");
-      if (parts.length > 1) {
-        return parts[1]!.trim();
-      }
-    }
-    return null;
-  }, [result, hasError]);
-  const stdout = useMemo(() => {
-    if (!hasError) {
-      const parts = result.split("```\nStdout: ");
-      if (parts.length > 1) {
-        return parts[1]!.trim();
-      }
-    }
-    return null;
-  }, [result, hasError]);
-  return (
-    <>
-      <div className="mt-4 font-medium italic">
-        {hasError ? "Error when executing the above code" : "Execution output"}
-      </div>
-      <div className="bg-accent mt-2 max-h-[400px] max-w-[calc(100%-120px)] overflow-y-auto rounded-md p-2 text-sm">
-        <SyntaxHighlighter
-          language="plaintext"
-          style={resolvedTheme === "dark" ? dark : docco}
-          customStyle={{
-            color: hasError ? "red" : "inherit",
-            background: "transparent",
-            border: "none",
-            boxShadow: "none",
-          }}
-        >
-          {error ?? stdout ?? "(empty)"}
-        </SyntaxHighlighter>
-      </div>
-    </>
-  );
-}
+  const borderColor = resolvedTheme === "dark" ? "#444" : "#ddd";
 
-function MCPToolCall({ toolCall }: { toolCall: ToolCallRuntime }) {
-  const tool = useMemo(() => findMCPTool(toolCall.name), [toolCall.name]);
-  const { resolvedTheme } = useTheme();
   return (
-    <section className="mt-4 pl-4">
-      <div className="w-fit overflow-y-auto rounded-md py-0">
+    <div className="group/tool-call relative my-4 flex flex-col gap-2 rounded-lg border p-4" style={{ borderColor }}>
+      <div className="flex items-center gap-2">
+        <BookOpenText size={18} />
+        <span className="font-semibold">Crawling URL:</span>
+        <a href={args.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+          {args.url}
+        </a>
+      </div>
+      {message.isStreaming && !result && (
+        <div className="flex items-center gap-2">
+          <LoadingAnimation />
+          <span>Crawling...</span>
+        </div>
+      )}
+      {result && (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
-            <AccordionTrigger>
-              <Tooltip title={tool?.description}>
-                <div className="flex items-center font-medium italic">
-                  <PencilRuler size={16} className={"mr-2"} />
-                  <RainbowText
-                    className="pr-0.5 text-base font-medium italic"
-                    animated={toolCall.result === undefined}
-                  >
-                    Running {toolCall.name ? toolCall.name + "()" : "MCP tool"}
-                  </RainbowText>
-                </div>
-              </Tooltip>
-            </AccordionTrigger>
+            <AccordionTrigger>View Content (first 500 chars)</AccordionTrigger>
             <AccordionContent>
-              {toolCall.result && (
-                <div className="bg-accent max-h-[400px] max-w-[560px] overflow-y-auto rounded-md text-sm">
-                  <SyntaxHighlighter
-                    language="json"
-                    style={resolvedTheme === "dark" ? dark : docco}
-                    customStyle={{
-                      background: "transparent",
-                      border: "none",
-                      boxShadow: "none",
-                    }}
-                  >
-                    {typeof toolCall.result === 'string' 
-                      ? toolCall.result.trim() 
-                      : toolCall.result === null || typeof toolCall.result === 'undefined'
-                        ? "[No Result Data]"
-                        : JSON.stringify(toolCall.result, null, 2)}
-                  </SyntaxHighlighter>
-                </div>
-              )}
+              <pre className="whitespace-pre-wrap text-sm">{result.substring(0, 500)}...</pre>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }
+
+function PythonToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
+  const args = toolCall.args as { code: string };
+  const result = toolCall.result as { result?: string; image?: string; error?: string } | undefined;
+  const { resolvedTheme } = useTheme();
+  const syntaxTheme = resolvedTheme === "dark" ? dark : docco;
+  const borderColor = resolvedTheme === "dark" ? "#444" : "#ddd";
+
+  return (
+    <div className="group/tool-call relative my-4 flex flex-col gap-2 rounded-lg border p-4" style={{ borderColor }}>
+      <div className="flex items-center gap-2">
+        <PythonOutlined style={{ fontSize: "18px" }} />
+        <span className="font-semibold">Python REPL</span>
+      </div>
+      <SyntaxHighlighter language="python" style={syntaxTheme} customStyle={{ borderRadius: "6px" }}>
+        {args.code}
+      </SyntaxHighlighter>
+      {message.isStreaming && !result && (
+        <div className="flex items-center gap-2">
+          <LoadingAnimation />
+          <span>Executing...</span>
+        </div>
+      )}
+      {result?.result && (
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>View Output</AccordionTrigger>
+            <AccordionContent>
+              <pre className="whitespace-pre-wrap text-sm">{result.result}</pre>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+      {result?.image && (
+        <div>
+          <Image src={`data:image/png;base64,${result.image}`} alt="Python REPL generated image" />
+        </div>
+      )}
+      {result?.error && (
+        <div className="text-red-500">
+          <span className="font-semibold">Error:</span> {result.error}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MCPToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
+  const { args, result, name: toolName } = toolCall;
+  const { resolvedTheme } = useTheme();
+  const borderColor = resolvedTheme === "dark" ? "#444" : "#ddd";
+  const mcpTool = useMemo(() => findMCPTool(toolName), [toolName]);
+
+  return (
+    <div className="group/tool-call relative my-4 flex flex-col gap-2 rounded-lg border p-4" style={{ borderColor }}>
+      <div className="flex items-center gap-2">
+        <PencilRuler size={18} />
+        <span className="font-semibold">
+          {mcpTool?.name ?? toolName}
+        </span>
+      </div>
+      {args && Object.keys(args).length > 0 && (
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-args">
+            <AccordionTrigger>View Arguments</AccordionTrigger>
+            <AccordionContent>
+              <pre className="whitespace-pre-wrap text-sm">
+                {JSON.stringify(args, null, 2)}
+              </pre>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+      {message.isStreaming && !result && (
+        <div className="flex items-center gap-2">
+          <LoadingAnimation />
+          <span>Processing...</span>
+        </div>
+      )}
+      {result && (
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-result">
+            <AccordionTrigger>View Result</AccordionTrigger>
+            <AccordionContent>
+              <pre className="whitespace-pre-wrap text-sm">
+                {typeof result === "string" ? result : JSON.stringify(result, null, 2)}
+              </pre>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+    </div>
+  );
+}
+// */

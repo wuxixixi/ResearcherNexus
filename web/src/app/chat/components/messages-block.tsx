@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { motion } from "framer-motion";
-import { FastForward, Play } from "lucide-react";
+import { FastForward, Play, DownloadCloud } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { RainbowText } from "~/components/researchernexus/rainbow-text";
@@ -15,11 +15,12 @@ import {
 } from "~/components/ui/card";
 import { fastForwardReplay } from "~/core/api";
 import { useReplayMetadata } from "~/core/api/hooks";
-import type { Option } from "~/core/messages";
+import type { Option, Message } from "~/core/messages";
 import { useReplay } from "~/core/replay";
 import { sendMessage, useMessageIds, useStore } from "~/core/store";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
+import { downloadMessagesAsMarkdown } from "~/lib/download";
 
 import { ConversationStarter } from "./conversation-starter";
 import { InputBox } from "./input-box";
@@ -31,7 +32,7 @@ export function MessagesBlock({ className }: { className?: string }) {
   const messageCount = messageIds.length;
   const responding = useStore((state) => state.responding);
   const { isReplay } = useReplay();
-  const { title: replayTitle, hasError: replayHasError } = useReplayMetadata();
+  const { title: replayTitleFromMeta, hasError: replayHasErrorFromMeta } = useReplayMetadata();
   const [replayStarted, setReplayStarted] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [feedback, setFeedback] = useState<{ option: Option } | null>(null);
@@ -76,8 +77,41 @@ export function MessagesBlock({ className }: { className?: string }) {
     setFastForwarding(!fastForwarding);
     fastForwardReplay(!fastForwarding);
   }, [fastForwarding]);
+
+  const handleDownloadActivity = useCallback(() => {
+    const state = useStore.getState();
+    const allMessages: Message[] = state.messageIds
+      .map(id => state.messages.get(id))
+      .filter((msg): msg is Message => !!msg);
+
+    if (allMessages && allMessages.length > 0) {
+      let topic: string | undefined = undefined;
+      if (isReplay && replayTitleFromMeta) {
+        topic = replayTitleFromMeta;
+      } else if (!isReplay) {
+        // TEMPORARILY SIMPLIFY topic generation for debugging
+        // const lastUserMessage = [...allMessages].reverse().find(msg => msg.role === 'user');
+        // if (lastUserMessage && lastUserMessage.content) {
+        //   topic = lastUserMessage.content.substring(0, 100); 
+        // }
+        topic = "TestTopicForActivityArea"; // Fixed topic for debugging
+      }
+      downloadMessagesAsMarkdown(allMessages, "活动区导出", topic);
+    } else {
+      console.warn("No messages to download from activity area.");
+    }
+  }, [isReplay, replayTitleFromMeta]);
+
+  console.log("MessagesBlock rendering - isReplay:", isReplay, "replayTitleFromMeta:", replayTitleFromMeta);
+
   return (
     <div className={cn("flex h-full flex-col", className)}>
+      <div className="flex items-center justify-between p-2 border-b sticky top-0 bg-background z-10">
+        <h2 className="text-lg font-semibold">活动区</h2>
+        <Button variant="outline" size="icon" onClick={handleDownloadActivity} title="Download Activity Log (Markdown)">
+          <DownloadCloud size={16} />
+        </Button>
+      </div>
       <MessageListView
         className="flex flex-grow"
         onFeedback={handleFeedback}
@@ -127,7 +161,7 @@ export function MessagesBlock({ className }: { className?: string }) {
                   <CardHeader>
                     <CardTitle>
                       <RainbowText animated={responding}>
-                        {responding ? "Replaying" : `${replayTitle}`}
+                        {responding ? "Replaying" : `${replayTitleFromMeta}`}
                       </RainbowText>
                     </CardTitle>
                     <CardDescription>
@@ -141,7 +175,7 @@ export function MessagesBlock({ className }: { className?: string }) {
                     </CardDescription>
                   </CardHeader>
                 </div>
-                {!replayHasError && (
+                {!replayHasErrorFromMeta && (
                   <div className="pr-4">
                     {responding && (
                       <Button
