@@ -24,3 +24,5 @@ conf.yaml
 # coverage report
 coverage.xml
 coverage/
+
+.web/users.csv
