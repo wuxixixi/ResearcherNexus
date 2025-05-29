@@ -9,11 +9,11 @@ import { Tooltip } from "~/components/researchernexus/tooltip";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import type { Message } from "~/core/messages";
 import { useReplay } from "~/core/replay";
 import { closeResearch, listenToPodcast, useStore } from "~/core/store";
-import { cn } from "~/lib/utils";
 import { downloadContentAsMarkdown, downloadMessagesAsMarkdown } from "~/lib/download";
-import type { Message } from "~/core/messages";
+import { cn } from "~/lib/utils";
 
 import { ResearchActivitiesBlock } from "./research-activities-block";
 import { ResearchReportBlock } from "./research-report-block";
@@ -47,7 +47,7 @@ export function ResearchBlock({
     if (!researchId) return undefined;
     const researchInitialMessage = useStore.getState().messages.get(researchId);
     // Use the first ~100 chars of content, or a default if not available
-    return researchInitialMessage?.content?.substring(0, 100) || "Research";
+    return researchInitialMessage?.content?.substring(0, 100) ?? "Research";
   }, [researchId]);
 
   const handleGeneratePodcast = useCallback(async () => {
@@ -79,7 +79,7 @@ export function ResearchBlock({
       return;
     }
     const reportMessage = useStore.getState().messages.get(reportId);
-    if (!reportMessage || !reportMessage.content) {
+    if (!reportMessage?.content) {
       console.warn("No report content to download.");
       return;
     }

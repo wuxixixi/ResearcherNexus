@@ -3,7 +3,6 @@
 
 import { PythonOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import { LRUCache } from "lru-cache";
 import { BookOpenText, PencilRuler, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
@@ -15,15 +14,12 @@ import { FavIcon } from "~/components/researchernexus/fav-icon";
 import Image from "~/components/researchernexus/image";
 import { LoadingAnimation } from "~/components/researchernexus/loading-animation";
 import { Markdown } from "~/components/researchernexus/markdown";
-import { RainbowText } from "~/components/researchernexus/rainbow-text";
-import { Tooltip } from "~/components/researchernexus/tooltip";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Skeleton } from "~/components/ui/skeleton";
 import { findMCPTool } from "~/core/mcp";
 import type { ToolCallRuntime } from "~/core/messages";
 import { useStore, useMessage } from "~/core/store";
@@ -76,7 +72,7 @@ export function ResearchActivitiesBlock({
     <>
       <ul className={cn("flex flex-col py-4", className)}>
         {activityIds.map(
-          (activityId, i) =>
+          (activityId, _i) =>
             // We will re-introduce the i !== 0 condition later if needed
             // For now, let's render all items to see if mapping is the issue.
             <motion.li
@@ -149,7 +145,7 @@ function ActivityListItem({ messageId }: { messageId: string }) {
 // ... other helper components like WebSearchToolCall, CrawlToolCall etc. would also be here ...
 // Define these components here for now. They might need to be moved to separate files later.
 
-const previstoHostCache = new LRUCache<string, string>({ max: 100 });
+// const previstoHostCache = new LRUCache<string, string>({ max: 100 });
 
 function WebSearchToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
   const args = toolCall.args as { query: string };
@@ -189,8 +185,8 @@ function WebSearchToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, m
 }
 
 function CrawlToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
-  const args = toolCall.args as { url: string };
-  const result = toolCall.result as string | undefined;
+  const args = toolCall.args;
+  const result = toolCall.result;
   const { resolvedTheme } = useTheme();
   const borderColor = resolvedTheme === "dark" ? "#444" : "#ddd";
 
@@ -199,8 +195,8 @@ function CrawlToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, messa
       <div className="flex items-center gap-2">
         <BookOpenText size={18} />
         <span className="font-semibold">Crawling URL:</span>
-        <a href={args.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-          {args.url}
+        <a href={args.url as string} target="_blank" rel="noopener noreferrer" className="hover:underline">
+          {args.url as string}
         </a>
       </div>
       {message.isStreaming && !result && (
@@ -224,7 +220,7 @@ function CrawlToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, messa
 }
 
 function PythonToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, message: { isStreaming?: boolean } }) {
-  const args = toolCall.args as { code: string };
+  const args = toolCall.args;
   const result = toolCall.result as { result?: string; image?: string; error?: string } | undefined;
   const { resolvedTheme } = useTheme();
   const syntaxTheme = resolvedTheme === "dark" ? dark : docco;
@@ -237,7 +233,7 @@ function PythonToolCall({ toolCall, message }: { toolCall: ToolCallRuntime, mess
         <span className="font-semibold">Python REPL</span>
       </div>
       <SyntaxHighlighter language="python" style={syntaxTheme} customStyle={{ borderRadius: "6px" }}>
-        {args.code}
+        {args.code as string}
       </SyntaxHighlighter>
       {message.isStreaming && !result && (
         <div className="flex items-center gap-2">

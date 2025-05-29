@@ -19,8 +19,8 @@ import type { Option, Message } from "~/core/messages";
 import { useReplay } from "~/core/replay";
 import { sendMessage, useMessageIds, useStore } from "~/core/store";
 import { env } from "~/env";
-import { cn } from "~/lib/utils";
 import { downloadMessagesAsMarkdown } from "~/lib/download";
+import { cn } from "~/lib/utils";
 
 import { ConversationStarter } from "./conversation-starter";
 import { InputBox } from "./input-box";

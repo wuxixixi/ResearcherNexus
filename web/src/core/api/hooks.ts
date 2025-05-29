@@ -44,5 +44,5 @@ export function useReplayMetadata() {
     title,
     isLoading: isLoadingRef.current,
     hasError: error,
-  }), [title, error, isLoadingRef.current]);
+  }), [title, error]);
 }

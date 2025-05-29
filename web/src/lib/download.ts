@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 // Import the actual Message and MessageRole types from the store
-import type { Message, MessageRole } from "../core/messages/types";
+import type { Message } from "../core/messages/types";
 
 // The Message interface here is now for reference or if we need to extend/adapt
 // but downloadMessagesAsMarkdown will use the imported Message type directly.
