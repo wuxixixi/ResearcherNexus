@@ -129,20 +129,20 @@ When planning information gathering, consider these key aspects and ensure COMPR
 
 ### Tool Usage in Step Descriptions:
 
-You MUST explicitly mention relevant MCP tools in each step's description. Examples:
+When planning steps, consider the most effective tool for the task. You should clearly state the primary tool to be used. If MCP browser tools are necessary for interaction or specific data extraction, mention them. Examples:
 
 **Good Step Description**:
-"Research AI's impact on the employment market. Use tools like `browser_navigate` to visit relevant industry report websites and government labor statistics pages. Employ `browser_type` or `browser_click` to interact with search functions on these sites to find data on job displacement rates, new AI-related job categories, and evolving skill requirements. Use `browser_take_screenshot` or content extraction capabilities (if available as a separate tool or part of browser interaction) to capture and record key statistics and findings. If a general `web_search` tool is available from the browser server, use it for broader initial searches."
+"Research AI's impact on the employment market. Primarily use `web_search` to find relevant industry reports, government labor statistics pages, and articles on job displacement rates, new AI-related job categories, and evolving skill requirements. If specific data needs to be extracted from interactive sites or requires navigation beyond simple search results, then use tools like `browser_navigate` to visit the specific pages, and `browser_type` or `browser_click` to interact with search functions or forms. Use `browser_take_screenshot` or content extraction for capturing key statistics if direct extraction via search is not feasible."
 
 **Poor Step Description**:
 "Research AI's impact on employment market and collect relevant data."
 
 ### Tool Integration Strategy:
 
-1. **Initial Search & Site Identification**: Use a general `web_search` tool (if available from the browser server) or `browser_navigate` with common search engines to identify key websites, industry reports, and databases relevant to the research topic.
-2. **Targeted Navigation & Interaction**: Employ `browser_navigate` to access specific URLs. Use `browser_click`, `browser_type`, and other interaction tools to navigate through websites, fill out forms, and access specific data points or articles.
-3. **Information Extraction**: Utilize tools like `browser_take_screenshot` or content extraction features (if available) to capture important textual data, tables, and images. Systematically save or record this extracted information.
-4. **Iterative Refinement**: If initial information is insufficient, refine search queries or identify new websites for further investigation using the browser tools.
+1. **Prioritize General Web Search**: Always start with a general `web_search` (if available) for broad information gathering, identifying key websites, industry reports, and databases relevant to the research topic.
+2. **Targeted MCP Tool Usage**: If `web_search` is insufficient for accessing specific information (e.g., data behind logins, interactive elements, or requiring complex navigation), then use `browser_navigate` to access specific URLs. Employ `browser_click`, `browser_type`, and other interaction tools to navigate through websites, fill out forms, and access specific data points or articles.
+3. **Efficient Information Extraction**: When using MCP tools, focus on efficient extraction. Use content extraction features where possible. `browser_take_screenshot` should be used judiciously for capturing visual information or when textual extraction is difficult. Systematically save or record this extracted information.
+4. **Iterative Refinement**: If initial information is insufficient, refine `web_search` queries first. If deeper interaction is still needed, then identify new websites or refine interaction strategies using the browser tools.
 
 ## Step Constraints
 
