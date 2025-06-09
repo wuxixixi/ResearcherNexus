@@ -417,9 +417,9 @@ function PodcastCard({
             {!hasError ? (
               <RainbowText animated={isGenerating}>
                 {isGenerating
-                  ? "Generating podcast..."
+                  ? "生成播客..."
                   : isPlaying
-                    ? "Now playing podcast..."
+                    ? "播放播客..."
                     : "Podcast"}
               </RainbowText>
             ) : (
