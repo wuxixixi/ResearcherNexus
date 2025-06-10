@@ -44,6 +44,36 @@ const config = {
   // ... rest of the configuration.
   output: "standalone",
 
+  // 添加生产环境配置
+  env: {
+    NEXT_PUBLIC_API_URL: 'http://172.16.128.43:8000/api',
+  },
+
+  // 添加跨域配置
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
+        ],
+      },
+    ]
+  },
+
+  // 添加重写规则
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://172.16.128.43:8000/api/:path*',
+      },
+    ]
+  },
+
   eslint: {
     // Enable ESLint during builds
     ignoreDuringBuilds: false,
