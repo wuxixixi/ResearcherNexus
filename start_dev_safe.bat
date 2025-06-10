@@ -27,7 +27,7 @@ if %errorlevel%==0 (
 
 REM 启动后端
 echo [3/4] Starting backend server...
-start "ResearcherNexus-Backend" cmd /k "echo Backend Server && uv run server.py"
+start "ResearcherNexus-Backend" cmd /k "echo Backend Server && uv run server.py --host 172.16.128.43"
 timeout /t 5 >nul
 
 REM 启动前端

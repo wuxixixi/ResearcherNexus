@@ -26,6 +26,12 @@ const config = {
     },
   },
 
+  // 添加开发环境允许的源
+  allowedDevOrigins: [
+    'http://172.16.128.43:3000',
+    'http://localhost:3000'
+  ],
+
   // For production mode
   webpack: (config) => {
     config.module.rules.push({
