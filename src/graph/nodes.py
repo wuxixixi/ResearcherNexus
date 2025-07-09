@@ -104,28 +104,16 @@ def planner_node(
             }
         ]
 
-    if AGENT_LLM_MAP["planner"] == "basic":
-        llm = get_llm_by_type(AGENT_LLM_MAP["planner"]).with_structured_output(
-            Plan,
-            method="json_mode",
-        )
-    else:
-        llm = get_llm_by_type(AGENT_LLM_MAP["planner"])
+    llm = get_llm_by_type(AGENT_LLM_MAP["planner"])
 
-    # if the plan iterations is greater than the max plan iterations, return the reporter node
-    if plan_iterations >= configurable.max_plan_iterations:
-        # 检查是否启用增强版报告员
-        use_enhanced_reporter = config.get("configurable", {}).get("use_enhanced_reporter", False)
-        return Command(goto="enhanced_reporter" if use_enhanced_reporter else "reporter")
-
+    # 统一使用llm.stream(messages)，兼容openrouter流式返回格式
+    response = llm.stream(messages)
     full_response = ""
-    if AGENT_LLM_MAP["planner"] == "basic":
-        response = llm.invoke(messages)
-        full_response = response.model_dump_json(indent=4, exclude_none=True)
-    else:
-        response = llm.stream(messages)
-        for chunk in response:
+    for chunk in response:
+        if hasattr(chunk, 'content') and chunk.content:
             full_response += chunk.content
+        else:
+            logger.warning(f"[openrouter流式兼容] 跳过无content字段的chunk: {chunk}")
     logger.debug(f"Current state messages: {state['messages']}")
     logger.info(f"Planner response: {full_response}")
 

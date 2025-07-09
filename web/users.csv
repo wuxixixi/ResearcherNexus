@@ -1,8 +1,15 @@
 username,password,role,daily_limit,used_today,last_used_date
-admin,admin123,admin,999,24,2025-06-10
+admin,admin123,admin,999,9,2025-07-09
 user,password,user,10,0,
 test,test123,user,10,0,
-demo,demo456,user,5,0,
 wuxi2,123123,user,10,0,
 wuxi3,123123,user,1,0,2025-05-27
 legalmine,123123,user,10,0,2025-05-29
+zhangsan3,123123Zs,user,10,10,2025-06-10
+lisi4,123123Ls,user,10,1,2025-06-10
+yunchunq,qyc22334455,user,10,1,2025-06-26
+zxt,65653565btt,user,10,0,
+dkr,dkrdkr,user,10,2,2025-07-04
+gjtracy,gjtracy@SASS,user,10,3,2025-07-04
+chenzhicheng,Flexchen1,user,10,4,2025-07-04
+yichzhang2,Phd880108!,user,10,3,2025-07-08
