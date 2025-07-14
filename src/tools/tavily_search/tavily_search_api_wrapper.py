@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List, Optional
-
+import certifi
+import ssl
 import aiohttp
 import requests
 from langchain_community.utilities.tavily_search import TAVILY_API_URL
@@ -70,7 +71,8 @@ class EnhancedTavilySearchAPIWrapper(OriginalTavilySearchAPIWrapper):
                 "include_images": include_images,
                 "include_image_descriptions": include_image_descriptions,
             }
-            async with aiohttp.ClientSession() as session:
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
                 async with session.post(f"{TAVILY_API_URL}/search", json=params) as res:
                     if res.status == 200:
                         data = await res.text()
