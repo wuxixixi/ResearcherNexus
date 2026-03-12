@@ -1,8 +1,9 @@
 # Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 # SPDX-License-Identifier: MIT
 
+from dataclasses import field
 import operator
-from typing import Annotated
+from typing import Annotated, Any
 
 from langgraph.graph import MessagesState
 
@@ -21,3 +22,7 @@ class State(MessagesState):
     auto_accepted_plan: bool = False
     enable_background_investigation: bool = True
     background_investigation_results: str = None
+    
+    # Citation metadata collected during research
+    # Format: List of citation dictionaries with url, title, description, etc.
+    citations: list[dict[str, Any]] = field(default_factory=list)
